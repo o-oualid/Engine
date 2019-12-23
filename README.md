@@ -10,7 +10,7 @@
 5. [Node Editor in ImGui?](https://github.com/thedmd/imgui-node-editor)
 6. [assimp](https://github.com/assimp/assimp)
 7. [EntityX](https://github.com/alecthomas/entityx) (ECS)
-8. [SoLoud](https://github.com/jarikomppa/soloud) or [FMOD](https://fmod.com/) 
+8. [SoLoud](https://github.com/jarikomppa/soloud) or [FMOD](https://fmod.com/) for audio
 9. [PhysX](https://github.com/NVIDIAGameWorks/PhysX)
 10.[Poco](https://github.com/pocoproject/poco) or [boost asio](http://think-async.com/Asio) for networking
 
