@@ -1,5 +1,6 @@
 # The-Engine
 
+
 ## Dependencies
 
 1. [The-Forge](https://github.com/ConfettiFX/The-Forge)
@@ -15,3 +16,8 @@
 
 1. [Premake](https://github.com/premake/premake-core)
 2. SPIR-V
+
+
+#Articles
+1. https://www.3dgep.com/simulating-particle-effects-using-opengl/
+2. https://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
