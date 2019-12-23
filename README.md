@@ -8,7 +8,8 @@
 4. [ImGui Addons](https://github.com/Flix01/imgui)
 5. [Node Editor in ImGui?](https://github.com/thedmd/imgui-node-editor)
 6. [assimp](https://github.com/assimp/assimp)
-7. [PhysX](https://github.com/NVIDIAGameWorks/PhysX)
+7. [EntityX(https://github.com/alecthomas/entityx) (ECS)
+8. [PhysX](https://github.com/NVIDIAGameWorks/PhysX)
 
 ## Tools
 
