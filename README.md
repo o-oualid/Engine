@@ -1,7 +1,7 @@
 # Engine
 
 ## Dependencies
-1. [The-Forge](https://github.com/Confetti3. [The-Forge](https://github.com/ConfettiFX/The-Forge)
+1. [The-Forge](https://github.com/ConfettiFX/The-Forge)
 
 2. [Imgui](https://github.com/ocornut/imgui) docking branch while in dev
 3. [ImGuizmo](https://github.com/CedricGuillemet/ImGuizmo)
