@@ -11,7 +11,7 @@
 6. [assimp](https://github.com/assimp/assimp)
 7. [EntityX](https://github.com/alecthomas/entityx) (ECS)
 8. [PhysX](https://github.com/NVIDIAGameWorks/PhysX)
-
+9. [Poco](https://github.com/pocoproject/poco) mainly for networking
 ## Tools
 
 1. [Premake](https://github.com/premake/premake-core)
