@@ -11,7 +11,7 @@
 6. [assimp](https://github.com/assimp/assimp)
 7. [EntityX](https://github.com/alecthomas/entityx) (ECS)
 8. [PhysX](https://github.com/NVIDIAGameWorks/PhysX)
-9. [Poco](https://github.com/pocoproject/poco) or [boost asio](http://think-async.com/Asio/http://think-async.com/Asio/) for networking
+9. [Poco](https://github.com/pocoproject/poco) or [boost asio](http://think-async.com/Asio) for networking
 
 ## Tools
 
