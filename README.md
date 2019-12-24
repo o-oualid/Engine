@@ -15,7 +15,7 @@
 10. [SoLoud](https://github.com/jarikomppa/soloud) or [FMOD](https://fmod.com/) for audio
 11. [PhysX](https://github.com/NVIDIAGameWorks/PhysX) 
 13. [Poco](https://github.com/pocoproject/poco) or [boost asio](http://think-async.com/Asio) for networking
-
+14. [spdlog](https://github.com/gabime/spdlog) Consol logging
 ## Tools
 
 1. [Premake](https://github.com/premake/premake-core)
