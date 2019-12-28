@@ -11,6 +11,7 @@
 6. [Node Editor in ImGui?](https://github.com/thedmd/imgui-node-editor)
 7. [assimp](https://github.com/assimp/assimp)
 8. [ENTT](https://github.com/skypjack/entt) (ECS)
+   [entt integration example with imgui](https://github.com/Green-Sky/imgui_entt_entity_editor_demo)
 9. [Ozz-animation](https://github.com/guillaumeblanc/ozz-animation) skeletal animation 
 10. [SoLoud](https://github.com/jarikomppa/soloud) or [FMOD](https://fmod.com/) for audio
 11. [PhysX](https://github.com/NVIDIAGameWorks/PhysX) 
