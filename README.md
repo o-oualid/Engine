@@ -26,3 +26,4 @@
 ## Articles
 1. https://www.3dgep.com/simulating-particle-effects-using-opengl/
 2. https://www.opengl-tutorial.org/intermediate-tutorials/billboards-particles/particles-instancing/
+3.
