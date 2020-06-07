@@ -114,9 +114,9 @@ void VkRenderer::cleanup() {
 
 void VkRenderer::recreateSwapChain() {
     int width = 0, height = 0;
-    window->getFramebufferSize(width,height);
+    window->getFramebufferSize(width, height);
     while (width == 0 || height == 0) {
-        window->getFramebufferSize(width,height);
+        window->getFramebufferSize(width, height);
         window->waitEvents();
     }
 
@@ -195,13 +195,13 @@ void VkRenderer::setupDebugMessenger() {
     populateDebugMessengerCreateInfo(createInfo);
 
     if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
-      //  throw std::runtime_error("failed to set up debug messenger!");
+        throw std::runtime_error("failed to set up debug messenger!");
     }
 }
 
 void VkRenderer::createSurface() {
 
-    window->createSurface(instance,&surface);
+    window->createSurface(instance, &surface);
 }
 
 void VkRenderer::pickPhysicalDevice() {
@@ -737,7 +737,8 @@ VkRenderer::createImage(uint32_t width, uint32_t height, VkFormat format, VkImag
     vkBindImageMemory(device, image, imageMemory, 0);
 }
 
-void VkRenderer::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
+void
+VkRenderer::transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
     VkImageMemoryBarrier barrier{};

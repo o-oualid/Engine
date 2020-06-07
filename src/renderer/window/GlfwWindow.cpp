@@ -38,6 +38,7 @@ std::vector<const char *> GlfwWindow::getRequiredExtensions() {
     std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
 #ifdef NDEBUG
+#else
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
 
