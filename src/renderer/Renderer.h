@@ -6,8 +6,8 @@
 class Renderer {
 public:
 
-    Camera* camera;
-    Window* window;
+    Camera *camera;
+    Window *window;
 
     virtual void init() = 0;
 
@@ -16,5 +16,7 @@ public:
     virtual void cleanup() = 0;
 
     virtual void waitIdle() = 0;
+
+    virtual ~Renderer() = 0 {};
 
 };

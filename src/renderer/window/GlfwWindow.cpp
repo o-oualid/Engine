@@ -17,7 +17,7 @@ bool GlfwWindow::shouldClose() {
     return glfwWindowShouldClose(window);
 }
 
-void GlfwWindow::poolEvent() {
+void GlfwWindow::poolEvents() {
     glfwPollEvents();
 }
 

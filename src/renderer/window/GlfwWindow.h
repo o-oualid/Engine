@@ -15,7 +15,7 @@ public:
 
     bool shouldClose() override;
 
-    void poolEvent() override;
+    void poolEvents() override;
 
     void cleanup() override;
 

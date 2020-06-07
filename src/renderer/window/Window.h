@@ -9,7 +9,7 @@ public:
 
     virtual bool shouldClose() = 0;
 
-    virtual void poolEvent() = 0;
+    virtual void poolEvents() = 0;
 
     virtual void cleanup() = 0;
 
@@ -17,7 +17,9 @@ public:
 
     virtual void createSurface(VkInstance instance, VkSurfaceKHR *surface) = 0;
 
-    virtual void waitEvents()=0;
+    virtual void waitEvents() = 0;
 
     virtual std::vector<const char *> getRequiredExtensions() = 0;
+
+    virtual ~Window() = default;;
 };
