@@ -110,7 +110,13 @@ class VkRenderer : public Renderer {
 
     AssetsManager assetsManager{};
 
+
+    bool no=false;
+
+
     void init() override;
+
+    void draw() override;
 
     void waitIdle() override;
 
@@ -201,7 +207,6 @@ class VkRenderer : public Renderer {
 
     void updateUniformBuffer(uint32_t currentImage);
 
-    void draw() override;
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
 
