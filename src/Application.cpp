@@ -22,6 +22,7 @@ void Application::mainLoop() {
         auto currentTime = (float) glfwGetTime();
         delta = currentTime - lastFrame;
         lastFrame = currentTime;
+       // std::cout<<1/delta<<std::endl;
         window->poolEvents();
         systemsManager->updateSystems(delta);
         renderer->draw();
