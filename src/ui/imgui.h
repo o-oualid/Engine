@@ -1,6 +1,9 @@
 #pragma once
+
 namespace Engine {
-    class Material {
+
+    class ImGui {
 
     };
+
 }

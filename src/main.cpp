@@ -1,7 +1,7 @@
 #include "Application.h"
 
 int main() {
-    Application app;
+    Engine::Application app;
     try {
         app.run();
     } catch (const std::exception &e) {

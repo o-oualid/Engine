@@ -3,22 +3,24 @@
 #include "renderer/vulkan/VkRenderer.h"
 #include "renderer/window/GlfwWindow.h"
 
-class Application {
-public:
-    void run();
+namespace Engine {
+    class Application {
+    public:
+        void run();
 
-private:
-    Renderer *renderer = new VkRenderer();
-    Window *window = new GlfwWindow();
-    PerspectiveCamera *camera = new PerspectiveCamera();;
-    Input *input;
-    SystemsManager *systemsManager = new SystemsManager();
+    private:
+        Renderer *renderer = new VkRenderer();
+        Window *window = new GlfwWindow();
+        PerspectiveCamera *camera = new PerspectiveCamera();;
+        Input *input;
+        SystemsManager *systemsManager = new SystemsManager();
 
-    void init();
+        void init();
 
-    void mainLoop();
+        void mainLoop();
 
-    void cleanup();
+        void cleanup();
 
-};
+    };
 
+}

@@ -2,7 +2,7 @@
 
 #include "vulkan/vulkan.h"
 #include "../../components/Texture.h"
-
+namespace Engine {
 struct VkTexture { ;
 
     VkImage image;
@@ -13,4 +13,4 @@ struct VkTexture { ;
     void loadTexture(Texture texture);
 
     void free(const VkDevice &device);
-};
+};}

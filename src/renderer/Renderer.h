@@ -2,7 +2,7 @@
 
 #include "../components/Camera.h"
 #include "window/Window.h"
-
+namespace Engine {
 class Renderer {
 public:
 
@@ -19,4 +19,4 @@ public:
 
     virtual ~Renderer() = 0 {};
 
-};
+};}
