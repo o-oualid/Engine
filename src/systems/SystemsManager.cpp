@@ -1,4 +1,5 @@
 #include "SystemsManager.h"
+
 namespace Engine {
     void SystemsManager::attachSystem(System *system) {
         if (count == 10) return;

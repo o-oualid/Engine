@@ -9,6 +9,7 @@
 #include "../../Vertex.h"
 #include "../../io/AssetsManager.h"
 #include "VkTexture.h"
+
 namespace Engine {
     const std::string MODEL_PATH = "models/viking_room.obj";
     const std::string TEXTURE_PATH = "textures/viking_room.png";

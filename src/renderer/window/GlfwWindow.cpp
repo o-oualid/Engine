@@ -1,6 +1,7 @@
 #include "GlfwWindow.h"
 #include "Window.h"
 #include <GLFW/glfw3.h>
+
 namespace Engine {
     void GlfwWindow::init(const std::string &title, int width, int height) {
         glfwInit();

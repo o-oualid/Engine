@@ -2,15 +2,17 @@
 
 #include "vulkan/vulkan.h"
 #include "../../components/Texture.h"
+
 namespace Engine {
-struct VkTexture { ;
+    struct VkTexture { ;
 
-    VkImage image;
-    VkDeviceMemory memory;
-    VkImageView view;
-    VkSampler sampler;
+        VkImage image;
+        VkDeviceMemory memory;
+        VkImageView view;
+        VkSampler sampler;
 
-    void loadTexture(Texture texture);
+        void loadTexture(Texture texture);
 
-    void free(const VkDevice &device);
-};}
+        void free(const VkDevice &device);
+    };
+}

@@ -1,4 +1,5 @@
 #include "PerspectiveCamera.h"
+
 namespace Engine {
     glm::mat4 PerspectiveCamera::view() {
         return glm::lookAt(position, position + front, up);

@@ -1,10 +1,13 @@
 #include "AssetsManager.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
+
 #include <tiny_obj_loader.h>
 
 #define STB_IMAGE_IMPLEMENTATION
+
 #include <stb_image.h>
+
 namespace Engine {
     Mesh AssetsManager::loadModel(const std::string &path) {
         Mesh mesh{};

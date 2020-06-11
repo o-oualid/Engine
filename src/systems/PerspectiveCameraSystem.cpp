@@ -1,4 +1,5 @@
 #include "PerspectiveCameraSystem.h"
+
 namespace Engine {
     void PerspectiveCameraSystem::update(const float &delta) {
         const float cameraSpeed = 2.0f * delta;

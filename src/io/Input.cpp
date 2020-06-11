@@ -1,4 +1,5 @@
 #include "Input.h"
+
 namespace Engine {
     bool Input::isKeyPressed(Input::Key key) {
         return glfwGetKey(window, (int) key) == GLFW_PRESS;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "System.h"
+
 namespace Engine {
     class SystemsManager {
     private:

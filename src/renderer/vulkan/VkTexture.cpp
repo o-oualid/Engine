@@ -1,5 +1,6 @@
 #include <cstring>
 #include "VkTexture.h"
+
 namespace Engine {
 
     void VkTexture::loadTexture(Texture texture) {
