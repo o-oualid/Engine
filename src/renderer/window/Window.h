@@ -12,8 +12,6 @@ namespace Engine {
 
         virtual void poolEvents() = 0;
 
-        virtual void cleanup() = 0;
-
         virtual void getFramebufferSize(int &width, int &height) = 0;
 
         virtual void createSurface(VkInstance instance, VkSurfaceKHR *surface) = 0;
@@ -22,6 +20,6 @@ namespace Engine {
 
         virtual std::vector<const char *> getRequiredExtensions() = 0;
 
-        virtual ~Window() = default;;
+        virtual ~Window() =0{};
     };
 }

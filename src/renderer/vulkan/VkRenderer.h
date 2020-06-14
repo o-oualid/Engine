@@ -30,6 +30,14 @@ namespace Engine {
     const bool enableValidationLayers = true;
 #endif
 
+    struct Model {
+        glm::mat4 transform;
+        uint32_t indexStart;
+        uint32_t indexCount;
+        uint32_t vertexStart;
+
+
+    };
 
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
@@ -107,9 +115,9 @@ namespace Engine {
 
         bool framebufferResized = false;
 
-
         AssetsManager assetsManager{};
 
+        std::vector<Model> models{};
 
         bool no = false;
 
@@ -120,7 +128,7 @@ namespace Engine {
 
         void waitIdle() override;
 
-        void cleanup() override;
+        ~VkRenderer() override;
 
         void cleanupSwapChain();
 
@@ -242,5 +250,8 @@ namespace Engine {
 
             return VK_FALSE;
         }
+
+
+        void addModel(const std::string &path, const glm::vec3 &pos);
     };
 }

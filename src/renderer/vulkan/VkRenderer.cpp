@@ -1,6 +1,7 @@
 #include "VkRenderer.h"
 
 namespace Engine {
+
     VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
                                           const VkAllocationCallbacks *pAllocator,
                                           VkDebugUtilsMessengerEXT *pDebugMessenger) {
@@ -83,7 +84,7 @@ namespace Engine {
         vkDestroyDescriptorPool(device, descriptorPool, nullptr);
     }
 
-    void VkRenderer::cleanup() {
+    VkRenderer::~VkRenderer() {
         cleanupSwapChain();
 
         texture.free(device);
@@ -827,7 +828,7 @@ namespace Engine {
             renderPassInfo.renderArea.extent = swapChainExtent;
 
             std::array<VkClearValue, 2> clearValues{};
-            clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+            clearValues[0].color = {0.1f, 0.1f, 0.1f, 1.0f};
             clearValues[1].depthStencil = {1.0f, 0};
 
             renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -836,33 +837,29 @@ namespace Engine {
             vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
             vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+            updateUniformBuffer(currentFrame);
 
-            VkBuffer vertexBuffers[] = {vertexBuffer};
             VkDeviceSize offsets[] = {0};
-            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-
+            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, &vertexBuffer, offsets);
             vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-            vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
-                                    &descriptorSets[i], 0, nullptr);
+            vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                    pipelineLayout, 0, 1, &descriptorSets[i],
+                                    0, nullptr);
 
-            for (int j = 0; j < 10; j++) {
-                for (int k = 0; k < 10; ++k) {
+            for (Model model:models) {
 
 
-                    glm::mat4 matrix = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f * j, 1.0f * k, 0.0f));
+                vkCmdPushConstants(commandBuffers[i], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT,
+                                   0, sizeof(model.transform), &model.transform);
 
-                    vkCmdPushConstants(commandBuffers[i], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(matrix),
-                                       &matrix);
-
-                    updateUniformBuffer(currentFrame);
-                    vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-                }
+                vkCmdDrawIndexed(commandBuffers[i], model.indexCount,
+                                 1, model.indexStart, model.vertexStart, 0);
             }
+
             vkCmdEndRenderPass(commandBuffers[i]);
 
-            if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
+            if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
                 throw std::runtime_error("failed to record command buffer!");
-            }
         }
     }
 
@@ -1375,7 +1372,24 @@ namespace Engine {
     }
 
     void VkRenderer::loadModel() {
-        Mesh mesh = assetsManager.loadModel(MODEL_PATH);
+        bool monkey = false;
+        for (int i = 0; i < 10; ++i) {
+            for (int j = 0; j < 10; ++j) {
+                if (monkey)
+                    addModel(MODEL_PATH, glm::vec3(i * 3, j * 3, 0));
+                else
+                    addModel("models/monkey.obj", glm::vec3(i * 3, j * 3, 0));
+                monkey = !monkey;
+            }
+
+        }
+    }
+
+    void VkRenderer::addModel(const std::string &path, const glm::vec3 &pos) {
+        Mesh mesh = assetsManager.loadModel(path);
+        models.push_back(Model{glm::translate(glm::mat4(1), pos),
+                               (uint32_t) indices.size(),
+                               (uint32_t) (mesh.indices.size()), (uint32_t) (vertices.size())});
         vertices.insert(vertices.end(), mesh.vertices.begin(), mesh.vertices.end());
         indices.insert(indices.end(), mesh.indices.begin(), mesh.indices.end());
     }

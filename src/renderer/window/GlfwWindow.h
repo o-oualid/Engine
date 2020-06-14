@@ -18,8 +18,6 @@ namespace Engine {
 
         void poolEvents() override;
 
-        void cleanup() override;
-
         void getFramebufferSize(int &width, int &height) override;
 
         void createSurface(VkInstance instance, VkSurfaceKHR *surface) override;
@@ -32,5 +30,7 @@ namespace Engine {
         std::vector<const char *> getRequiredExtensions() override;
 
         void waitEvents() override;
+
+        ~GlfwWindow() override;
     };
 }

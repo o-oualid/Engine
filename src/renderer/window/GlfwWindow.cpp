@@ -22,7 +22,7 @@ namespace Engine {
         glfwPollEvents();
     }
 
-    void GlfwWindow::cleanup() {
+    GlfwWindow::~GlfwWindow() {
         glfwDestroyWindow(window);
         glfwTerminate();
     }

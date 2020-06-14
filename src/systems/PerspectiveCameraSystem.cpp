@@ -37,9 +37,10 @@ namespace Engine {
         xoffset *= sensitivity;
         yoffset *= sensitivity;
 
-        if (!input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT))
+        if (!(input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT)||firstFrame))
             return;
 
+        firstFrame=false;
         yaw += xoffset;
         pitch += yoffset;
 

@@ -4,7 +4,6 @@ namespace Engine {
     void Application::run() {
         init();
         mainLoop();
-        cleanup();
     }
 
     void Application::init() {
@@ -14,6 +13,7 @@ namespace Engine {
         systemsManager->attachSystem(new PerspectiveCameraSystem(camera, input));
         renderer->window = window;
         renderer->init();
+       // ui = new UI(static_cast<VkRenderer*>(renderer));
     }
 
     void Application::mainLoop() {
@@ -27,15 +27,15 @@ namespace Engine {
             window->poolEvents();
             systemsManager->updateSystems(delta);
             renderer->draw();
+            //ui->update();
         }
         renderer->waitIdle();
     }
 
-    void Application::cleanup() {
-        renderer->cleanup();
-        window->cleanup();
+    Application::~Application() {
         delete camera;
         delete systemsManager;
+        //delete ui;
         delete input;
         delete renderer;
         delete window;
