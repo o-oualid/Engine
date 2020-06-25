@@ -8,7 +8,8 @@ add_subdirectory(external)
 
 file(GLOB_RECURSE  SOURCE_FILES "src/*.h" "src/*.cpp")
 add_executable(Engine ${SOURCE_FILES})
-target_link_libraries(Engine Vulkan::Vulkan glfw glm stb tinyobjloader EnTT imgui_impl)
+target_link_libraries(Engine Vulkan::Vulkan glfw glm stb tinyobjloader EnTT imgui_impl tinygltf)
+
 
 file(GLOB_RECURSE  TESTS_SOURCE_FILES "tests/main.cpp")
 add_executable(Tests ${TESTS_SOURCE_FILES})

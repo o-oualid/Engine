@@ -1,6 +1,10 @@
 #pragma once
-namespace Engine {
-    class Material {
 
+#include <glm/vec4.hpp>
+
+namespace Engine {
+    class Material{
+    public:
+        glm::vec4 color{};
     };
 }

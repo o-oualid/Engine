@@ -13,13 +13,14 @@ namespace Engine {
         ~Application();
 
     private:
-        entt::registry registry;
-        Renderer *renderer = new VkRenderer();
+        entt::registry registry{};
+        Renderer *renderer = new VkRenderer(registry);
         Window *window = new GlfwWindow();
         PerspectiveCamera *camera = new PerspectiveCamera();
         Input *input;
         SystemsManager *systemsManager = new SystemsManager();
-       // UI *ui;
+
+        // UI *ui;
         void init();
 
         void mainLoop();

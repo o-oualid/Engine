@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "systems/EntitySystem.h"
 
 namespace Engine {
     void Application::run() {
@@ -7,13 +8,19 @@ namespace Engine {
     }
 
     void Application::init() {
+        new VkRenderer(registry);
         window->init("Game", 800, 600);
         input = new Input((dynamic_cast<GlfwWindow *>(window))->window);
         renderer->camera = camera;
         systemsManager->attachSystem(new PerspectiveCameraSystem(camera, input));
+
+
         renderer->window = window;
         renderer->init();
-       // ui = new UI(static_cast<VkRenderer*>(renderer));
+        entt::entity entity = renderer->addModel("data/models/test.glb", glm::vec3(0, 5, 0));
+        systemsManager->attachSystem(new EntitySystem(registry,entity));
+        renderer->uploadData();
+        // ui = new UI(static_cast<VkRenderer*>(renderer));
     }
 
     void Application::mainLoop() {

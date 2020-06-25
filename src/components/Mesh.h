@@ -1,12 +1,11 @@
 #pragma once
 
-#include "../pch.h"
-#include "../Vertex.h"
+#include <vector>
+#include "MeshAttribute.h"
 
 namespace Engine {
     class Mesh {
     public:
-        std::vector<uint32_t> indices;
-        std::vector<Vertex> vertices;
+        std::vector<MeshAttribute>attributes{};
     };
 }

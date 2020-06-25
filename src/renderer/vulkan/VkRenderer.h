@@ -1,9 +1,11 @@
 #pragma once
 
+#include <entt/entity/registry.hpp>
 #include "../Renderer.h"
 
 #include "../../pch.h"
 #include "../../components/Camera.h"
+#include "../../components/Mesh.h"
 #include "../../systems/PerspectiveCameraSystem.h"
 #include "../../systems/SystemsManager.h"
 #include "../../Vertex.h"
@@ -11,9 +13,6 @@
 #include "VkTexture.h"
 
 namespace Engine {
-    const std::string MODEL_PATH = "models/viking_room.obj";
-    const std::string TEXTURE_PATH = "textures/viking_room.png";
-
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
     const std::vector<const char *> validationLayers = {
@@ -30,15 +29,6 @@ namespace Engine {
     const bool enableValidationLayers = true;
 #endif
 
-    struct Model {
-        glm::mat4 transform;
-        uint32_t indexStart;
-        uint32_t indexCount;
-        uint32_t vertexStart;
-
-
-    };
-
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> presentFamily;
@@ -53,8 +43,10 @@ namespace Engine {
         std::vector<VkSurfaceFormatKHR> formats;
         std::vector<VkPresentModeKHR> presentModes;
     };
-
-
+    struct PushConstant {
+        glm::mat4 translation;
+        Material material;
+    };
     struct UniformBufferObject {
         alignas(16) glm::mat4 model;
         alignas(16) glm::mat4 view;
@@ -62,19 +54,13 @@ namespace Engine {
     };
 
     class VkRenderer : public Renderer {
-        VkInstance instance;
+
         VkDebugUtilsMessengerEXT debugMessenger;
         VkSurfaceKHR surface;
 
-        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-        VkDevice device;
-
-        VkQueue graphicsQueue;
         VkQueue presentQueue;
 
         VkSwapchainKHR swapChain;
-        std::vector<VkImage> swapChainImages;
-        VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
         std::vector<VkImageView> swapChainImageViews;
         std::vector<VkFramebuffer> swapChainFramebuffers;
@@ -89,8 +75,6 @@ namespace Engine {
         VkImage depthImage;
         VkDeviceMemory depthImageMemory;
         VkImageView depthImageView;
-
-        VkTexture texture;
 
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
@@ -117,7 +101,9 @@ namespace Engine {
 
         AssetsManager assetsManager{};
 
-        std::vector<Model> models{};
+        const int texturesCount = 3;
+        std::vector<VkTexture> vkTextures{};
+
 
         bool no = false;
 
@@ -131,7 +117,6 @@ namespace Engine {
         ~VkRenderer() override;
 
         void cleanupSwapChain();
-
 
         void recreateSwapChain();
 
@@ -147,11 +132,14 @@ namespace Engine {
 
         void createLogicalDevice();
 
+
         void createSwapChain();
 
         void createImageViews();
 
         void createRenderPass();
+
+        void loadModel();
 
         void createDescriptorSetLayout();
 
@@ -163,17 +151,18 @@ namespace Engine {
 
         void createDepthResources();
 
-        VkFormat
-        findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling,
-                            VkFormatFeatureFlags features);
+        VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling,
+                                     VkFormatFeatureFlags features);
 
         VkFormat findDepthFormat();
 
         bool hasStencilComponent(VkFormat format);
 
-        void createTextureImage();
+        void createTextureImage(VkTexture &texture, const std::string &path);
 
         void createTextureImageView();
+
+        uint32_t createTexture(const std::string &path);
 
         void createTextureSampler();
 
@@ -187,7 +176,6 @@ namespace Engine {
 
         void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
-        void loadModel();
 
         void createVertexBuffer();
 
@@ -203,10 +191,6 @@ namespace Engine {
         void
         createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer,
                      VkDeviceMemory &bufferMemory);
-
-        VkCommandBuffer beginSingleTimeCommands();
-
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
@@ -252,6 +236,23 @@ namespace Engine {
         }
 
 
-        void addModel(const std::string &path, const glm::vec3 &pos);
+        entt::registry &registry;
+    public:
+        entt::entity addModel(const std::string &path, const glm::vec3 &pos) override;
+
+        VkRenderer(entt::registry &registry);
+
+        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+        VkInstance instance;
+        VkDevice device;
+        VkQueue graphicsQueue;
+        std::vector<VkImage> swapChainImages;
+        VkFormat swapChainImageFormat;
+
+        VkCommandBuffer beginSingleTimeCommands();
+
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+        void uploadData() override;
     };
 }

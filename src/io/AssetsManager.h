@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../pch.h"
-#include "../components/Mesh.h"
+#include "Model.h"
 #include "../components/Texture.h"
 
 namespace Engine {
     class AssetsManager {
     public:
-        Mesh loadModel(const std::string &path);
+        Model loadModel(const std::string &path);
 
         Texture loadTexture(const std::string &path);
 

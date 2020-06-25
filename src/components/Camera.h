@@ -1,12 +1,13 @@
 #pragma once
 
 #include "../pch.h"
-#include "Actor.h"
 
 namespace Engine {
-    class Camera : public Actor {
+    class Camera {
 
     public:
+        glm::vec3 position;
+
         float aspect = 1.0f;
 
         virtual glm::mat4 projection() = 0;
