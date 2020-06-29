@@ -9,6 +9,8 @@
 
 namespace Engine {
     class GlfwWindow : public Window {
+       int tempWidth= 0;
+       int tempHeight= 0;
     public:
         GLFWwindow *window;
 
@@ -32,5 +34,7 @@ namespace Engine {
         void waitEvents() override;
 
         ~GlfwWindow() override;
+
+        bool isFramebufferResized() override;
     };
 }

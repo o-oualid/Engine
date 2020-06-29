@@ -20,6 +20,8 @@ namespace Engine {
 
         virtual std::vector<const char *> getRequiredExtensions() = 0;
 
-        virtual ~Window() =0{};
+        virtual bool isFramebufferResized()=0;
+
+        virtual ~Window() =default;
     };
 }

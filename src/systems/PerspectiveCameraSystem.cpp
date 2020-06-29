@@ -37,10 +37,10 @@ namespace Engine {
         xoffset *= sensitivity;
         yoffset *= sensitivity;
 
-        if (!(input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT)||firstFrame))
+        if (!(input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT) || firstFrame))
             return;
 
-        firstFrame=false;
+        firstFrame = false;
         yaw += xoffset;
         pitch += yoffset;
 
@@ -58,6 +58,8 @@ namespace Engine {
 
     }
 
-    PerspectiveCameraSystem::PerspectiveCameraSystem(PerspectiveCamera *camera, Input *input) : camera{camera},
-                                                                                                input{input} {}
+    PerspectiveCameraSystem::PerspectiveCameraSystem(PerspectiveCamera *camera, Input *input,
+                                                     entt::registry& registry) : camera{camera},
+                                                                                input{input},
+                                                                                System(registry){}
 }

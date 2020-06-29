@@ -9,7 +9,7 @@ namespace Engine {
 
         Camera *camera;
         Window *window;
-
+        bool vSync= true;
 
         virtual void init() = 0;
 
@@ -17,9 +17,9 @@ namespace Engine {
 
         virtual void waitIdle() = 0;
 
-        virtual entt::entity addModel(const std::string &path, const glm::vec3 &loaction) = 0;
+        virtual entt::entity addModel(const std::string &path) = 0;
         virtual void uploadData()=0;
-        virtual ~Renderer() = 0 {};
+        virtual ~Renderer() = default;
 
     };
 }

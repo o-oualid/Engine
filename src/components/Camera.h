@@ -14,7 +14,6 @@ namespace Engine {
 
         virtual glm::mat4 view() = 0;
 
-
-        virtual ~Camera() = 0 {};
+        virtual ~Camera() = default;
     };
 }

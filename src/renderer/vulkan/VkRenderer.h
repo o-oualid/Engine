@@ -48,13 +48,14 @@ namespace Engine {
         Material material;
     };
     struct UniformBufferObject {
-        alignas(16) glm::mat4 model;
         alignas(16) glm::mat4 view;
         alignas(16) glm::mat4 proj;
     };
 
     class VkRenderer : public Renderer {
-
+    public:
+        bool framebufferResized = false;
+    private:
         VkDebugUtilsMessengerEXT debugMessenger;
         VkSurfaceKHR surface;
 
@@ -97,7 +98,6 @@ namespace Engine {
         std::vector<VkFence> imagesInFlight;
         size_t currentFrame = 0;
 
-        bool framebufferResized = false;
 
         AssetsManager assetsManager{};
 
@@ -196,8 +196,6 @@ namespace Engine {
 
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-        void createCommandBuffers();
-
         void createSyncObjects();
 
         void updateUniformBuffer(size_t currentImage);
@@ -238,7 +236,7 @@ namespace Engine {
 
         entt::registry &registry;
     public:
-        entt::entity addModel(const std::string &path, const glm::vec3 &pos) override;
+        entt::entity addModel(const std::string &path) override;
 
         VkRenderer(entt::registry &registry);
 
@@ -254,5 +252,11 @@ namespace Engine {
         void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
         void uploadData() override;
+
+        void updateCommandBuffer(uint32_t imageIndex);
+
+        void allocateFrameBuffers();
+
+        void createCommandBuffer(uint32_t i);
     };
 }

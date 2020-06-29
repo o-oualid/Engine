@@ -20,7 +20,6 @@ namespace Engine {
         Input *input;
         SystemsManager *systemsManager = new SystemsManager();
 
-        // UI *ui;
         void init();
 
         void mainLoop();

@@ -6,6 +6,7 @@
 
 namespace Engine {
     class AssetsManager {
+        std::unordered_map<std::string ,std::vector<char>> files{};
     public:
         Model loadModel(const std::string &path);
 

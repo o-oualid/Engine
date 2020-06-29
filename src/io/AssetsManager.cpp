@@ -23,7 +23,7 @@ namespace Engine {
             NodeData nodeData{};
             nodeData.meshId = node.mesh;
             nodeData.name = node.name;
-            nodeData.children=node.children;
+            nodeData.children = node.children;
             if (!node.translation.empty()) {
 
                 nodeData.transform.location = {
@@ -58,6 +58,16 @@ namespace Engine {
                 const tinygltf::Buffer &vertexBuffer = model.buffers[vertexBufferView.buffer];
                 const auto *positions = reinterpret_cast<const float *>(&vertexBuffer.data[vertexBufferView.byteOffset +
                                                                                            vertexAccessor.byteOffset]);
+                const float *normals;
+                bool hasNormals = primitive.attributes["NORMAL"] != NULL;
+                if (hasNormals) {
+                    const tinygltf::Accessor &normalAccessor = model.accessors[primitive.attributes["NORMAL"]];
+                    const tinygltf::BufferView &normalBufferView = model.bufferViews[normalAccessor.bufferView];
+                    const tinygltf::Buffer &normalBuffer = model.buffers[normalBufferView.buffer];
+                    normals = reinterpret_cast<const float *>(&normalBuffer.data[
+                            normalBufferView.byteOffset +
+                            normalAccessor.byteOffset]);
+                }
                 bool hasVertexColor = primitive.attributes["COLOR_0"] != NULL;
                 const float *colors;
 
@@ -84,13 +94,19 @@ namespace Engine {
                     vertex.pos = {positions[i * 3 + 0],
                                   positions[i * 3 + 1],
                                   positions[i * 3 + 2],};
+
+                    if (hasNormals) {
+                        vertex.normal = {normals[i * 3 + 0],
+                                         normals[i * 3 + 1],
+                                         normals[i * 3 + 2],};
+                    } else vertex.normal = {0, 0, 1,};
                     if (hasVertexColor) {
                         vertex.color = {colors[i * 4 + 0],
                                         colors[i * 4 + 1],
                                         colors[i * 4 + 2],};
-                    } else
-                        vertex.color = {1, 0, 1,};
-                    if (hasUV)vertex.uv = {uv[i * 2 + 0], uv[i * 2 + 1]};
+                    } else vertex.color = {1, 0, 1,};
+
+                    if (hasUV) vertex.uv = {uv[i * 2 + 0], uv[i * 2 + 1]};
                     else vertex.uv = {1.0f, 1.0f};
 
                     primitiveData.vertices.push_back(vertex);
@@ -214,7 +230,6 @@ namespace Engine {
 
     std::vector<char> AssetsManager::loadFile(const std::string &path) {
         std::ifstream file(path, std::ios::ate | std::ios::binary);
-
         if (!file.is_open())
             throw std::runtime_error("failed to open file!");
 
@@ -223,6 +238,7 @@ namespace Engine {
         file.seekg(0);
         file.read(buffer.data(), fileSize);
         file.close();
+        
         return buffer;
     }
 

@@ -2,7 +2,7 @@
 
 #include <glm/detail/type_quat.hpp>
 #include "glm/glm.hpp"
-
+#include "entt/entt.hpp"
 namespace Engine {
     class Transform {
     private:
@@ -16,5 +16,6 @@ namespace Engine {
         glm::vec3 scale = {1.0f, 1.0f, 1};
 
         glm::mat4 getTransformMatrix();
+        glm::mat4 getGlobalTransform(entt::registry& registry);
     };
 }

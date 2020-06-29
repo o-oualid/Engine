@@ -1,15 +1,16 @@
 #include "EntitySystem.h"
 
 namespace Engine {
-    EntitySystem::EntitySystem(entt::registry &registry, const entt::entity &entity) : registry{registry},
-                                                                                       entity{entity} {
-
-    }
+    EntitySystem::EntitySystem(entt::registry &registry): System(registry) {}
 
     void EntitySystem::update(const float &delta) {
-        auto &transform = registry.get<Transform>(entity);
-        auto name = registry.get<Name>(entity).name;
-        transform.rotation = glm::rotate(transform.rotation, 2 * delta, glm::vec3(0, 0, 1));
-        transform.dirty = true;
+        auto view = registry.view<Transform, Car>();
+
+        for (auto entity: view) {
+            auto &transform = view.get<Transform>(entity);
+            auto &car= view.get<Car>(entity);
+            transform.rotation = glm::rotate(transform.rotation, delta * car.speed, glm::vec3(0, 0, 1));
+            transform.dirty = true;
+        }
     }
 }

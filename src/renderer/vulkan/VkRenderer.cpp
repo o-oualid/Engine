@@ -17,8 +17,7 @@ namespace Engine {
         }
     }
 
-    void DestroyDebugUtilsMessengerEXT(VkInstance instance,
-                                       VkDebugUtilsMessengerEXT debugMessenger,
+    void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
                                        const VkAllocationCallbacks *pAllocator) {
         auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(
                 instance, "vkDestroyDebugUtilsMessengerEXT");
@@ -50,9 +49,12 @@ namespace Engine {
         createUniformBuffers();
         createDescriptorPool();
         createDescriptorSets();
-        createCommandBuffers();
+        allocateFrameBuffers();
+        for (size_t i = 0; i < commandBuffers.size(); i++)
+            createCommandBuffer(i);
         createSyncObjects();
     }
+
 
     void VkRenderer::waitIdle() {
         vkDeviceWaitIdle(device);
@@ -63,21 +65,17 @@ namespace Engine {
         vkDestroyImage(device, depthImage, nullptr);
         vkFreeMemory(device, depthImageMemory, nullptr);
 
-        for (auto framebuffer : swapChainFramebuffers) {
+        for (auto framebuffer : swapChainFramebuffers)
             vkDestroyFramebuffer(device, framebuffer, nullptr);
-        }
 
-        vkFreeCommandBuffers(device, commandPool,
-                             static_cast<uint32_t>(commandBuffers.size()),
+        vkFreeCommandBuffers(device, commandPool, static_cast<uint32_t>(commandBuffers.size()),
                              commandBuffers.data());
 
         vkDestroyPipeline(device, graphicsPipeline, nullptr);
         vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
         vkDestroyRenderPass(device, renderPass, nullptr);
 
-        for (auto imageView : swapChainImageViews) {
-            vkDestroyImageView(device, imageView, nullptr);
-        }
+        for (auto imageView : swapChainImageViews) vkDestroyImageView(device, imageView, nullptr);
 
         vkDestroySwapchainKHR(device, swapChain, nullptr);
 
@@ -113,9 +111,7 @@ namespace Engine {
 
         vkDestroyDevice(device, nullptr);
 
-        if (enableValidationLayers) {
-            DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-        }
+        if (enableValidationLayers) DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 
         vkDestroySurfaceKHR(instance, surface, nullptr);
         vkDestroyInstance(instance, nullptr);
@@ -132,7 +128,6 @@ namespace Engine {
         vkDeviceWaitIdle(device);
 
         cleanupSwapChain();
-
         createSwapChain();
         createImageViews();
         createRenderPass();
@@ -142,7 +137,9 @@ namespace Engine {
         createUniformBuffers();
         createDescriptorPool();
         createDescriptorSets();
-        createCommandBuffers();
+        allocateFrameBuffers();
+        for (size_t i = 0; i < commandBuffers.size(); i++)
+            createCommandBuffer(i);
     }
 
     void VkRenderer::createInstance() {
@@ -625,10 +622,7 @@ namespace Engine {
         swapChainFramebuffers.resize(swapChainImageViews.size());
 
         for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-            std::array<VkImageView, 2> attachments = {
-                    swapChainImageViews[i],
-                    depthImageView
-            };
+            std::array<VkImageView, 2> attachments = {swapChainImageViews[i], depthImageView};
 
             VkFramebufferCreateInfo framebufferInfo{};
             framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -652,11 +646,11 @@ namespace Engine {
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+        poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) !=
-            VK_SUCCESS) {
+        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
             throw std::runtime_error("failed to create graphics command pool!");
-        }
+
     }
 
     void VkRenderer::createDepthResources() {
@@ -882,7 +876,7 @@ namespace Engine {
         endSingleTimeCommands(commandBuffer);
     }
 
-    void VkRenderer::createCommandBuffers() {
+    void VkRenderer::allocateFrameBuffers() {
         commandBuffers.resize(swapChainFramebuffers.size());
 
         VkCommandBufferAllocateInfo allocInfo{};
@@ -891,86 +885,84 @@ namespace Engine {
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = (uint32_t) commandBuffers.size();
 
-        if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) !=
-            VK_SUCCESS) {
+        if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
             throw std::runtime_error("failed to allocate command buffers!");
-        }
+    }
 
-        for (size_t i = 0; i < commandBuffers.size(); i++) {
-            VkCommandBufferBeginInfo beginInfo{
-            };
-            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    void VkRenderer::updateCommandBuffer(uint32_t imageIndex) {
+        vkResetCommandBuffer(commandBuffers[imageIndex], VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+        createCommandBuffer(imageIndex);
+    }
 
-            if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
-                throw std::runtime_error("failed to begin recording command buffer!");
+    void VkRenderer::createCommandBuffer(uint32_t i) {
+
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+        if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
+            throw std::runtime_error("failed to begin recording command buffer!");
+
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = renderPass;
+        renderPassInfo.framebuffer = swapChainFramebuffers[i];
+        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.extent = swapChainExtent;
+
+        std::array<VkClearValue, 2> clearValues{};
+        clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+        clearValues[1].depthStencil = {1.0f, 0};
+
+        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues = clearValues.data();
+
+        vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
+                             VK_SUBPASS_CONTENTS_INLINE);
+
+        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                          graphicsPipeline);
+        updateUniformBuffer(currentFrame);
+
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, &vertexBuffer, offsets);
+        vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                pipelineLayout, 0, 1, &descriptorSets[i], 0,
+                                nullptr);
+
+        uint32_t textureId = 0;
+        auto view = registry.view<Transform, Mesh>();
+
+        for (auto entity: view) {
+            entt::entity currentEntity = entity;
+            glm::mat4 transform = {1, 0, 0, 0,
+                                   0, 1, 0, 0,
+                                   0, 0, 1, 0,
+                                   0, 0, 0, 1,};
+
+            while (true) {
+                transform = registry.get<Transform>(currentEntity).getTransformMatrix() * transform;
+                if (!registry.has<Relationship>(currentEntity))break;
+                currentEntity = registry.get<Relationship>(currentEntity).parent;
             }
 
-            VkRenderPassBeginInfo renderPassInfo{};
-            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderPassInfo.renderPass = renderPass;
-            renderPassInfo.framebuffer = swapChainFramebuffers[i];
-            renderPassInfo.renderArea.offset = {0, 0};
-            renderPassInfo.renderArea.extent = swapChainExtent;
+            auto &mesh = view.get<Mesh>(entity);
 
-            std::array<VkClearValue, 2> clearValues{};
-            clearValues[0].color = {0.1f, 0.1f, 0.1f, 1.0f};
-            clearValues[1].depthStencil = {1.0f, 0};
+            for (auto attribute:mesh.attributes) {
+                auto ps = PushConstant{transform, attribute.material};
+                vkCmdPushConstants(commandBuffers[i], pipelineLayout,
+                                   VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstant), &ps);
 
-            renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-            renderPassInfo.pClearValues = clearValues.data();
-
-            vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
-                                 VK_SUBPASS_CONTENTS_INLINE);
-
-            vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                              graphicsPipeline);
-            updateUniformBuffer(currentFrame);
-
-            VkDeviceSize offsets[] = {0};
-            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, &vertexBuffer, offsets);
-            vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0,
-                                 VK_INDEX_TYPE_UINT32);
-            vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                    pipelineLayout, 0, 1, &descriptorSets[i], 0,
-                                    nullptr);
-
-            uint32_t textureId = 0;
-            auto view = registry.view<Transform, Mesh>();
-
-            for (auto entity: view) {
-                entt::entity currentEntity = entity;
-                glm::mat4 transform{1, 0, 0, 0,
-                                    0, 1, 0, 0,
-                                    0, 0, 1, 0,
-                                    0, 0, 0, 1,};
-
-
-                while (true) {
-                    transform = registry.get<Transform>(currentEntity).getTransformMatrix()*transform;
-                    if (!registry.has<Relationship>(currentEntity))break;
-                    currentEntity = registry.get<Relationship>(currentEntity).parent;
-                }
-
-                auto &mesh = view.get<Mesh>(entity);
-
-                for (auto attribute:mesh.attributes) {
-                    auto ps = PushConstant{
-                            transform, attribute.material
-                    };
-
-                    vkCmdPushConstants(commandBuffers[i], pipelineLayout,
-                                       VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstant), &ps);
-                    vkCmdDrawIndexed(commandBuffers[i], attribute.indexCount, 1,
-                                     attribute.indexStart, attribute.vertexStart, 0);
-                }
-                textureId = (textureId + 1) % texturesCount;
+                vkCmdDrawIndexed(commandBuffers[i], attribute.indexCount, 1,
+                                 attribute.indexStart, attribute.vertexStart, 0);
             }
-
-            vkCmdEndRenderPass(commandBuffers[i]);
-
-            if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
-                throw std::runtime_error("failed to record command buffer!");
+            textureId = (textureId + 1) % texturesCount;
         }
+
+        vkCmdEndRenderPass(commandBuffers[i]);
+
+        if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
+            throw std::runtime_error("failed to record command buffer!");
     }
 
     void VkRenderer::createSyncObjects() {
@@ -1000,8 +992,7 @@ namespace Engine {
     }
 
     void VkRenderer::createDescriptorPool() {
-        std::array<VkDescriptorPoolSize, 3> poolSizes{
-        };
+        std::array<VkDescriptorPoolSize, 3> poolSizes{};
         poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
         poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
         poolSizes[1].type = VK_DESCRIPTOR_TYPE_SAMPLER;
@@ -1037,8 +1028,7 @@ namespace Engine {
             throw std::runtime_error("failed to allocate descriptor sets!");
 
         for (size_t i = 0; i < swapChainImages.size(); i++) {
-            VkDescriptorBufferInfo bufferInfo{
-            };
+            VkDescriptorBufferInfo bufferInfo{};
             bufferInfo.buffer = uniformBuffers[i];
             bufferInfo.offset = 0;
             bufferInfo.range = sizeof(UniformBufferObject);
@@ -1046,8 +1036,7 @@ namespace Engine {
 //(uint32_t) models.size();
             std::vector<VkDescriptorImageInfo> imageInfos{};
             for (int j = 0; j < texturesCount; j++) {
-                VkDescriptorImageInfo imageInfo{
-                };
+                VkDescriptorImageInfo imageInfo{};
                 imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                 imageInfo.imageView = vkTextures[j].view;
                 imageInfo.sampler = vkTextures[j].sampler;
@@ -1088,16 +1077,14 @@ namespace Engine {
     void VkRenderer::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                                   VkMemoryPropertyFlags properties,
                                   VkBuffer &buffer, VkDeviceMemory &bufferMemory) {
-        VkBufferCreateInfo bufferInfo{
-        };
+        VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         bufferInfo.size = size;
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
+        if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
             throw std::runtime_error("failed to create buffer!");
-        }
 
         VkMemoryRequirements memRequirements;
         vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
@@ -1117,8 +1104,7 @@ namespace Engine {
     }
 
     VkCommandBuffer VkRenderer::beginSingleTimeCommands() {
-        VkCommandBufferAllocateInfo allocInfo{
-        };
+        VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandPool = commandPool;
@@ -1164,21 +1150,15 @@ namespace Engine {
 
     void VkRenderer::updateUniformBuffer(size_t currentImage) {
         static auto startTime = std::chrono::high_resolution_clock::now();
-
         auto currentTime = std::chrono::high_resolution_clock::now();
-        float time = std::chrono::duration<float, std::chrono::seconds::period>(
-                currentTime - startTime)
-                .count();
+        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
         UniformBufferObject ubo{};
-        ubo.model = glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(0.0f, 0.0f, 1.0f));
         ubo.view = camera->view();
         ubo.proj = camera->projection();
         ubo.proj[1][1] *= -1;
-
         void *data;
-        vkMapMemory(device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0,
-                    &data);
+        vkMapMemory(device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
         memcpy(data, &ubo, sizeof(ubo));
         vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
     }
@@ -1196,13 +1176,13 @@ namespace Engine {
             return;
         } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
             throw std::runtime_error("failed to acquire swap chain image!");
-
         updateUniformBuffer(imageIndex);
 
-        if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
-            vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE,
-                            UINT64_MAX);
-        }
+        updateCommandBuffer(imageIndex);
+
+        if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
+            vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+
         imagesInFlight[imageIndex] = inFlightFences[currentFrame];
 
         VkSubmitInfo submitInfo{};
@@ -1240,10 +1220,9 @@ namespace Engine {
 
         presentInfo.pImageIndices = &imageIndex;
 
-        result = VK_SUBOPTIMAL_KHR;
-        vkQueuePresentKHR(presentQueue, &presentInfo);
+        result = vkQueuePresentKHR(presentQueue, &presentInfo);
 
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized||window->isFramebufferResized()) {
             framebufferResized = false;
             recreateSwapChain();
         } else if (result != VK_SUCCESS) throw std::runtime_error("failed to present swap chain image!");
@@ -1278,6 +1257,7 @@ namespace Engine {
 
     VkPresentModeKHR VkRenderer::chooseSwapPresentMode(
             const std::vector<VkPresentModeKHR> &availablePresentModes) {
+        if (!vSync) return VK_PRESENT_MODE_IMMEDIATE_KHR;
         for (const auto &availablePresentMode : availablePresentModes) {
             if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
                 return availablePresentMode;
@@ -1526,7 +1506,7 @@ namespace Engine {
             createTexture("data/textures/viking_room.png");
     }
 
-    entt::entity VkRenderer::addModel(const std::string &path, const glm::vec3 &pos) {
+    entt::entity VkRenderer::addModel(const std::string &path) {
         Model model = assetsManager.loadModel(path);
         std::vector<Mesh> meshes{};
         for (MeshData meshData : model.meshData) {
@@ -1537,10 +1517,8 @@ namespace Engine {
                 meshAttribute.indexStart = (uint32_t) indices.size();
                 meshAttribute.indexCount = (uint32_t) (primitive.indices.size());
                 meshAttribute.vertexStart = (uint32_t) (vertices.size());
-                vertices.insert(vertices.end(), primitive.vertices.begin(),
-                                primitive.vertices.end());
-                indices.insert(indices.end(), primitive.indices.begin(),
-                               primitive.indices.end());
+                vertices.insert(vertices.end(), primitive.vertices.begin(), primitive.vertices.end());
+                indices.insert(indices.end(), primitive.indices.begin(), primitive.indices.end());
                 meshAttribute.material = primitive.material;
                 mesh.attributes.push_back(meshAttribute);
             }
@@ -1552,19 +1530,17 @@ namespace Engine {
         //transform.location = pos;
         registry.emplace<Transform>(modelEntity, transform);
 
-        for (int i = 0; i < model.nodes.size(); i++) {
-            NodeData &nodeData = model.nodes[i];
+        for (auto &nodeData : model.nodes) {
             auto entity = registry.create();
 
             registry.emplace<Transform>(entity, nodeData.transform);
             registry.emplace<Name>(entity, nodeData.name);
-            if (nodeData.meshId != -1)
-                registry.emplace<Mesh>(entity, meshes[nodeData.meshId]);
+            if (nodeData.meshId != -1) registry.emplace<Mesh>(entity, meshes[nodeData.meshId]);
             nodeData.self = entity;
             registry.emplace<Relationship>(entity, Relationship{modelEntity});
         }
 
-        for (NodeData nodeData : model.nodes) {
+        for (const NodeData &nodeData : model.nodes) {
             for (auto child:nodeData.children) {
                 registry.replace<Relationship>(model.nodes[child].self, Relationship{nodeData.self});
             }
