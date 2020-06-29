@@ -2,22 +2,29 @@
 
 namespace Engine {
     void PerspectiveCameraSystem::update(const float &delta) {
-        const float cameraSpeed = 2.0f * delta;
+        auto &transform = registry.get<Transform>(camera);
+        if (input->isKeyPressed(Input::Key::UP))speed += 1 * delta;
+        if (input->isKeyPressed(Input::Key::DOWN))speed -= 1 * delta;
+
+        const float cameraSpeed = speed * delta;
+        glm::vec3 forward = glm::rotate(transform.rotation, glm::vec3{0, 0, -1});
+        glm::vec3 left = glm::rotate(transform.rotation, glm::vec3{1, 0, 0});
+
         if (input->isKeyPressed(Input::Key::W))
-            camera->position += cameraSpeed * camera->front;
+            transform.location += cameraSpeed * forward;
         if (input->isKeyPressed(Input::Key::S))
-            camera->position -= cameraSpeed * camera->front;
+            transform.location -= cameraSpeed * forward;
         if (input->isKeyPressed(Input::Key::A))
-            camera->position -= glm::normalize(glm::cross(camera->front, camera->up)) * cameraSpeed;
+            transform.location -= cameraSpeed * left;
         if (input->isKeyPressed(Input::Key::D))
-            camera->position += glm::normalize(glm::cross(camera->front, camera->up)) * cameraSpeed;
+            transform.location += cameraSpeed * left;
         if (input->isKeyPressed(Input::Key::Q))
-            camera->position -= glm::normalize(camera->up) * cameraSpeed;
+            transform.location.z -= cameraSpeed;
         if (input->isKeyPressed(Input::Key::E))
-            camera->position += glm::normalize(camera->up) * cameraSpeed;
+            transform.location.z += cameraSpeed;
 
         input->HideCursor(input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT));
-
+        transform.dirty = true;
 
         auto mousePos = input->getMousePos();
         auto xpos = static_cast<float>(mousePos.x);
@@ -33,33 +40,27 @@ namespace Engine {
         lastX = xpos;
         lastY = ypos;
 
-        float sensitivity = 1.0f; // change this value to your liking
+        float sensitivity = 0.01f; // change this value to your liking
         xoffset *= sensitivity;
         yoffset *= sensitivity;
 
-        if (!(input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT) || firstFrame))
-            return;
+        if (!(input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT) || firstFrame)) return;
 
         firstFrame = false;
         yaw += xoffset;
         pitch += yoffset;
 
         // make sure that when pitch is out of bounds, screen doesn't get flipped
-        if (pitch > 89.0f)
-            pitch = 89.0f;
-        if (pitch < -89.0f)
-            pitch = -89.0f;
+        if (pitch > 89.0f) pitch = 89.0f;
+        if (pitch < -89.0f) pitch = -89.0f;
 
-        glm::vec3 front;
-        front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        front.z = sin(glm::radians(pitch));
-        front.y = -sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        camera->front = glm::normalize(front);
+        transform.rotation = glm::quat(glm::vec3(pitch, 0, -yaw));
+
 
     }
 
-    PerspectiveCameraSystem::PerspectiveCameraSystem(PerspectiveCamera *camera, Input *input,
-                                                     entt::registry& registry) : camera{camera},
-                                                                                input{input},
-                                                                                System(registry){}
+    PerspectiveCameraSystem::PerspectiveCameraSystem(entt::entity camera, Input *input,
+                                                     entt::registry &registry) : camera{camera},
+                                                                                 input{input},
+                                                                                 System(registry) {}
 }

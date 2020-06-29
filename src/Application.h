@@ -16,7 +16,6 @@ namespace Engine {
         entt::registry registry{};
         Renderer *renderer = new VkRenderer(registry);
         Window *window = new GlfwWindow();
-        PerspectiveCamera *camera = new PerspectiveCamera();
         Input *input;
         SystemsManager *systemsManager = new SystemsManager();
 

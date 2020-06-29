@@ -3,12 +3,15 @@
 #include "System.h"
 #include "../components/PerspectiveCamera.h"
 #include "../io/Input.h"
+#include <glm/gtx/quaternion.hpp>
+
 
 namespace Engine {
     class PerspectiveCameraSystem final : public System {
     private:
-        PerspectiveCamera *camera;
+        entt::entity camera;
         Input *input;
+        float speed = 1;
 
         bool firstMouse = true;
         bool firstFrame = true;
@@ -18,7 +21,7 @@ namespace Engine {
         float lastY = 1080.0f;
 
     public:
-        PerspectiveCameraSystem(PerspectiveCamera *camera, Input *input, entt::registry &registry);
+        PerspectiveCameraSystem(entt::entity camera, Input *input, entt::registry &registry);
 
         void update(const float &delta) override;
 

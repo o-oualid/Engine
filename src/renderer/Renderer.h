@@ -7,7 +7,7 @@ namespace Engine {
     class Renderer {
     public:
 
-        Camera *camera;
+        entt::entity camera;
         Window *window;
         bool vSync= true;
 

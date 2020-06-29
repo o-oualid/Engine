@@ -258,5 +258,7 @@ namespace Engine {
         void allocateFrameBuffers();
 
         void createCommandBuffer(uint32_t i);
+
+        glm::mat4 getGlobalTransform(entt::entity entity);
     };
 }

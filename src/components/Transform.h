@@ -11,9 +11,9 @@ namespace Engine {
         bool dirty= true;
         bool isDirty() const;
 
-        glm::quat rotation = {1, 0, 0, 0};
         glm::vec3 location = {0, 0, 0};
-        glm::vec3 scale = {1.0f, 1.0f, 1};
+        glm::quat rotation = {1, 0, 0, 0};
+        glm::vec3 scale = {1, 1, 1};
 
         glm::mat4 getTransformMatrix();
         glm::mat4 getGlobalTransform(entt::registry& registry);

@@ -350,7 +350,8 @@ namespace Engine {
 
         swapChainImageFormat = surfaceFormat.format;
         swapChainExtent = extent;
-        camera->aspect = extent.width / (float) extent.height;
+        auto &cam = registry.get<PerspectiveCamera>(camera);
+        cam.aspect = extent.width / (float) extent.height;
     }
 
     void VkRenderer::createImageViews() {
@@ -934,20 +935,10 @@ namespace Engine {
         auto view = registry.view<Transform, Mesh>();
 
         for (auto entity: view) {
-            entt::entity currentEntity = entity;
-            glm::mat4 transform = {1, 0, 0, 0,
-                                   0, 1, 0, 0,
-                                   0, 0, 1, 0,
-                                   0, 0, 0, 1,};
 
-            while (true) {
-                transform = registry.get<Transform>(currentEntity).getTransformMatrix() * transform;
-                if (!registry.has<Relationship>(currentEntity))break;
-                currentEntity = registry.get<Relationship>(currentEntity).parent;
-            }
+            glm::mat4 transform = getGlobalTransform(entity);
 
             auto &mesh = view.get<Mesh>(entity);
-
             for (auto attribute:mesh.attributes) {
                 auto ps = PushConstant{transform, attribute.material};
                 vkCmdPushConstants(commandBuffers[i], pipelineLayout,
@@ -1153,14 +1144,30 @@ namespace Engine {
         auto currentTime = std::chrono::high_resolution_clock::now();
         float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
+        auto &cam = registry.get<PerspectiveCamera>(camera);
         UniformBufferObject ubo{};
-        ubo.view = camera->view();
-        ubo.proj = camera->projection();
+        ubo.view = glm::inverse(getGlobalTransform(camera));
+        ubo.proj = cam.projection();
         ubo.proj[1][1] *= -1;
         void *data;
         vkMapMemory(device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
         memcpy(data, &ubo, sizeof(ubo));
         vkUnmapMemory(device, uniformBuffersMemory[currentImage]);
+    }
+
+    glm::mat4 VkRenderer::getGlobalTransform(const entt::entity entity) {
+        entt::entity currentEntity = entity;
+        glm::mat4 transform = {1, 0, 0, 0,
+                               0, 1, 0, 0,
+                               0, 0, 1, 0,
+                               0, 0, 0, 1,};
+
+        while (true) {
+            transform = registry.get<Transform>(currentEntity).getTransformMatrix() * transform;
+            if (!registry.has<Relationship>(currentEntity)) break;
+            currentEntity = registry.get<Relationship>(currentEntity).parent;
+        }
+        return transform;
     }
 
     void VkRenderer::draw() {
@@ -1222,7 +1229,8 @@ namespace Engine {
 
         result = vkQueuePresentKHR(presentQueue, &presentInfo);
 
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized||window->isFramebufferResized()) {
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized ||
+            window->isFramebufferResized()) {
             framebufferResized = false;
             recreateSwapChain();
         } else if (result != VK_SUCCESS) throw std::runtime_error("failed to present swap chain image!");
