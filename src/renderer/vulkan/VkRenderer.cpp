@@ -299,7 +299,7 @@ namespace Engine {
                 chooseSwapSurfaceFormat(swapChainSupport.formats);
         VkPresentModeKHR presentMode =
                 chooseSwapPresentMode(swapChainSupport.presentModes);
-        VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
+        extent = chooseSwapExtent(swapChainSupport.capabilities);
 
         uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
         if (swapChainSupport.capabilities.maxImageCount > 0 &&
@@ -372,7 +372,7 @@ namespace Engine {
         colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;//VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;//VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 
         VkAttachmentDescription depthAttachment{};
         depthAttachment.format = findDepthFormat();
@@ -1170,27 +1170,33 @@ namespace Engine {
         return transform;
     }
 
-    void VkRenderer::draw() {
+    bool VkRenderer::render() {
+        submitCommandBuffers.clear();
         vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
-        uint32_t imageIndex;
         VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX,
                                                 imageAvailableSemaphores[currentFrame],
                                                 VK_NULL_HANDLE, &imageIndex);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
             recreateSwapChain();
-            return;
+            recreateBuffer= true;
+            return false;
         } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
             throw std::runtime_error("failed to acquire swap chain image!");
         updateUniformBuffer(imageIndex);
-
         updateCommandBuffer(imageIndex);
+        submitCommandBuffers.push_back(commandBuffers[imageIndex]);
 
         if (imagesInFlight[imageIndex] != VK_NULL_HANDLE)
             vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
 
         imagesInFlight[imageIndex] = inFlightFences[currentFrame];
+        return true;
+    }
+
+    void VkRenderer::present() {
+
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -1201,8 +1207,8 @@ namespace Engine {
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
 
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+        submitInfo.commandBufferCount = submitCommandBuffers.size();
+        submitInfo.pCommandBuffers = submitCommandBuffers.data();
 
         VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
         submitInfo.signalSemaphoreCount = 1;
@@ -1214,7 +1220,6 @@ namespace Engine {
                           inFlightFences[currentFrame]) != VK_SUCCESS) {
             throw std::runtime_error("failed to submit draw command buffer!");
         }
-
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
@@ -1227,15 +1232,17 @@ namespace Engine {
 
         presentInfo.pImageIndices = &imageIndex;
 
-        result = vkQueuePresentKHR(presentQueue, &presentInfo);
+        VkResult result = vkQueuePresentKHR(presentQueue, &presentInfo);
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized ||
             window->isFramebufferResized()) {
             framebufferResized = false;
+            recreateBuffer= true;
             recreateSwapChain();
-        } else if (result != VK_SUCCESS) throw std::runtime_error("failed to present swap chain image!");
 
+        } else if (result != VK_SUCCESS) throw std::runtime_error("failed to present swap chain image!");
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
     }
 
     VkShaderModule VkRenderer::createShaderModule(const std::vector<char> &code) {
@@ -1552,16 +1559,6 @@ namespace Engine {
             for (auto child:nodeData.children) {
                 registry.replace<Relationship>(model.nodes[child].self, Relationship{nodeData.self});
             }
-        }
-
-        auto nameView = registry.view<Name>();
-        auto relationshipView = registry.view<Relationship>();
-        for (auto entity: nameView) {
-            auto &name = nameView.get<Name>(entity);
-            std::cout << name.name;
-            if (relationshipView.contains(entity))
-                std::cout << ": " << nameView.get(relationshipView.get(entity).parent).name;
-            std::cout << std::endl;
         }
         return modelEntity;
     }

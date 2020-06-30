@@ -11,8 +11,8 @@ namespace Engine {
         window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
         glfwSetWindowUserPointer(window, this);
         glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
-        tempWidth= width;
-        tempHeight= height;
+        tempWidth = width;
+        tempHeight = height;
     }
 
     bool GlfwWindow::shouldClose() {
@@ -60,9 +60,9 @@ namespace Engine {
     bool GlfwWindow::isFramebufferResized() {
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
-        if (width!=tempWidth||height!=tempHeight){
-            tempWidth= width;
-            tempHeight= height;
+        if (width != tempWidth || height != tempHeight) {
+            tempWidth = width;
+            tempHeight = height;
             return true;
         }
         return false;

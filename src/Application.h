@@ -10,19 +10,16 @@ namespace Engine {
     public:
         void run();
 
+        Application();
         ~Application();
 
     private:
         entt::registry registry{};
         Renderer *renderer = new VkRenderer(registry);
         Window *window = new GlfwWindow();
+        UI* ui;
         Input *input;
         SystemsManager *systemsManager = new SystemsManager();
-
-        void init();
-
-        void mainLoop();
-
 
     };
 

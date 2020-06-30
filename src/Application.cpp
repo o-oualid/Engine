@@ -1,25 +1,25 @@
 #include "Application.h"
 #include "systems/EntitySystem.h"
 #include "components/Relationship.h"
+#include "components/Name.h"
 
 namespace Engine {
-    void Application::run() {
-        init();
-        mainLoop();
-    }
 
-    void Application::init() {
+    Application::Application() {
         entt::entity camera = registry.create();
         registry.emplace<PerspectiveCamera>(camera);
         registry.emplace<Transform>(camera);
+        registry.emplace<Name>(camera,Name{"PerspectiveCamera"});
 
         new VkRenderer(registry);
         window->init("Game", 800, 600);
         input = new Input((dynamic_cast<GlfwWindow *>(window))->window);
 
         renderer->window = window;
-        renderer->camera=camera;
+        renderer->camera = camera;
         renderer->init();
+        ui = new UI(dynamic_cast<VkRenderer *>(renderer),registry);
+
         renderer->addModel("data/models/test2.glb");
         systemsManager->attachSystem(new PerspectiveCameraSystem(camera, input, registry));
 
@@ -29,14 +29,13 @@ namespace Engine {
         registry.emplace<Car>(entity1, Car{0.45f});
         entt::entity entity2 = renderer->addModel("data/models/test4.glb");
         registry.emplace<Car>(entity2, Car{0.4f});
-        registry.emplace<Relationship>(camera,Relationship{entity1});
+        registry.emplace<Relationship>(camera, Relationship{entity1});
         systemsManager->attachSystem(new EntitySystem(registry));
 
         renderer->uploadData();
-        // ui = new UI(static_cast<VkRenderer*>(renderer));
     }
 
-    void Application::mainLoop() {
+    void Application::run() {
         float delta;
         float lastFrame = 0.0f;
         while (!window->shouldClose()) {
@@ -46,16 +45,18 @@ namespace Engine {
             // std::cout<<1/delta<<std::endl;
             window->poolEvents();
             systemsManager->updateSystems(delta);
-            renderer->draw();
-            //ui->update();
+            if (renderer->render()) {
+                ui->render();
+                renderer->present();
+            }
         }
         renderer->waitIdle();
     }
 
     Application::~Application() {
         delete systemsManager;
-        //delete ui;
         delete input;
+        delete ui;
         delete renderer;
         delete window;
     }

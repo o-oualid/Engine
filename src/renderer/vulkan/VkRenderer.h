@@ -55,6 +55,12 @@ namespace Engine {
     class VkRenderer : public Renderer {
     public:
         bool framebufferResized = false;
+
+        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
+        std::vector<VkImageView> swapChainImageViews;
+        VkExtent2D extent;
+        bool recreateBuffer= false;
     private:
         VkDebugUtilsMessengerEXT debugMessenger;
         VkSurfaceKHR surface;
@@ -63,7 +69,6 @@ namespace Engine {
 
         VkSwapchainKHR swapChain;
         VkExtent2D swapChainExtent;
-        std::vector<VkImageView> swapChainImageViews;
         std::vector<VkFramebuffer> swapChainFramebuffers;
 
         VkRenderPass renderPass;
@@ -98,7 +103,6 @@ namespace Engine {
         std::vector<VkFence> imagesInFlight;
         size_t currentFrame = 0;
 
-
         AssetsManager assetsManager{};
 
         const int texturesCount = 3;
@@ -110,7 +114,7 @@ namespace Engine {
 
         void init() override;
 
-        void draw() override;
+        bool render() override;
 
         void waitIdle() override;
 
@@ -215,8 +219,6 @@ namespace Engine {
 
         bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 
-        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-
         std::vector<const char *> getRequiredExtensions() {
             return window->getRequiredExtensions();
         }
@@ -246,6 +248,9 @@ namespace Engine {
         VkQueue graphicsQueue;
         std::vector<VkImage> swapChainImages;
         VkFormat swapChainImageFormat;
+        uint32_t imageIndex;
+
+        std::vector<VkCommandBuffer> submitCommandBuffers{};
 
         VkCommandBuffer beginSingleTimeCommands();
 
@@ -260,5 +265,7 @@ namespace Engine {
         void createCommandBuffer(uint32_t i);
 
         glm::mat4 getGlobalTransform(entt::entity entity);
+
+        void present() override;
     };
 }

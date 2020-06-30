@@ -5,7 +5,7 @@
 namespace Engine {
     class Window {
     public:
-
+        bool fullScreen= true;
         virtual void init(const std::string &title, int width, int height) = 0;
 
         virtual bool shouldClose() = 0;

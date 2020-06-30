@@ -6,17 +6,32 @@
 namespace Engine {
     class UI {
     private:
-        VkRenderer &renderer;
+        VkRenderer* renderer;
+        entt::registry &registry;
         VkDescriptorPool descriptorPool;
         VkRenderPass renderPass;
+        VkCommandPool commandPool;
+        std::vector<VkCommandBuffer> commandBuffers{};
+        std::vector<VkFramebuffer> frameBuffers{};
 
         void createDescriptorPool();
+
+        void createCommandPool(VkCommandPool *commandPool, VkCommandPoolCreateFlags flags);
+
+        void createCommandBuffers(VkCommandBuffer *commandBuffer, uint32_t commandBufferCount,
+                                  VkCommandPool &commandPool);
+
         void createRenderPass();
-        void renderFrame();
-        void presentFrame();
 
     public:
-        explicit UI(VkRenderer &renderer);
-        void draw();
+        explicit UI(VkRenderer *renderer,entt::registry &registry);
+
+        ~UI();
+
+        void render();
+
+        void createFrameBuffers();
+
+        void renderFrame();
     };
 }
