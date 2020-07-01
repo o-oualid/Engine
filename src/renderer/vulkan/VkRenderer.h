@@ -267,5 +267,7 @@ namespace Engine {
         glm::mat4 getGlobalTransform(entt::entity entity);
 
         void present() override;
+
+        void deleteEntity(entt::entity entity);
     };
 }

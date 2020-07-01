@@ -1,38 +1,29 @@
 #include "Application.h"
-#include "systems/EntitySystem.h"
 #include "components/Relationship.h"
 #include "components/Name.h"
 
 namespace Engine {
 
     Application::Application() {
+        registry.create();
         entt::entity camera = registry.create();
         registry.emplace<PerspectiveCamera>(camera);
-        registry.emplace<Transform>(camera);
-        registry.emplace<Name>(camera,Name{"PerspectiveCamera"});
-
-        new VkRenderer(registry);
+        Transform cameraTransform{};
+        cameraTransform.location = {0.0f, 0.0f, 0.5f};
+        cameraTransform.rotation = {0.707107f, 0.707107f, 0.0f, 0.0f};
+        registry.emplace<Transform>(camera, cameraTransform);
+        registry.emplace<Name>(camera, Name{"PerspectiveCamera"});
+        registry.emplace<Relationship>(camera, Relationship{camera});
+        renderer = new VkRenderer(registry);
         window->init("Game", 800, 600);
         input = new Input((dynamic_cast<GlfwWindow *>(window))->window);
 
         renderer->window = window;
         renderer->camera = camera;
         renderer->init();
-        ui = new UI(dynamic_cast<VkRenderer *>(renderer),registry);
-
-        renderer->addModel("data/models/test2.glb");
+        ui = new UI(dynamic_cast<VkRenderer *>(renderer));
         systemsManager->attachSystem(new PerspectiveCameraSystem(camera, input, registry));
 
-        entt::entity entity = renderer->addModel("data/models/test.glb");
-        registry.emplace<Car>(entity, Car{0.5f});
-        entt::entity entity1 = renderer->addModel("data/models/test3.glb");
-        registry.emplace<Car>(entity1, Car{0.45f});
-        entt::entity entity2 = renderer->addModel("data/models/test4.glb");
-        registry.emplace<Car>(entity2, Car{0.4f});
-        registry.emplace<Relationship>(camera, Relationship{entity1});
-        systemsManager->attachSystem(new EntitySystem(registry));
-
-        renderer->uploadData();
     }
 
     void Application::run() {

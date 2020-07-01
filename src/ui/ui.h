@@ -2,17 +2,20 @@
 #include "imgui_impl_vulkan.h"
 #include "imgui_impl_glfw.h"
 #include "../renderer/vulkan/VkRenderer.h"
+#include "Widget.h"
 
 namespace Engine {
     class UI {
+    public:
+        std::vector<Widget*> widgets{};
     private:
-        VkRenderer* renderer;
-        entt::registry &registry;
+        VkRenderer *renderer;
         VkDescriptorPool descriptorPool;
         VkRenderPass renderPass;
         VkCommandPool commandPool;
         std::vector<VkCommandBuffer> commandBuffers{};
         std::vector<VkFramebuffer> frameBuffers{};
+
 
         void createDescriptorPool();
 
@@ -24,7 +27,7 @@ namespace Engine {
         void createRenderPass();
 
     public:
-        explicit UI(VkRenderer *renderer,entt::registry &registry);
+        explicit UI(VkRenderer *renderer);
 
         ~UI();
 

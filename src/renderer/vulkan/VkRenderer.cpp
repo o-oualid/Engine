@@ -1163,11 +1163,19 @@ namespace Engine {
                                0, 0, 0, 1,};
 
         while (true) {
+            if (!registry.has<Transform>(currentEntity)) break;
             transform = registry.get<Transform>(currentEntity).getTransformMatrix() * transform;
             if (!registry.has<Relationship>(currentEntity)) break;
-            currentEntity = registry.get<Relationship>(currentEntity).parent;
+            if (currentEntity == registry.get<Relationship>(currentEntity).parent) break;
+                currentEntity = registry.get<Relationship>(currentEntity).parent;
         }
         return transform;
+    }
+//TODO: this is bad super bad
+    void VkRenderer::deleteEntity(entt::entity entity) {
+
+            //registry.remove<Mesh>(entity);
+
     }
 
     bool VkRenderer::render() {
@@ -1180,7 +1188,7 @@ namespace Engine {
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
             recreateSwapChain();
-            recreateBuffer= true;
+            recreateBuffer = true;
             return false;
         } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
             throw std::runtime_error("failed to acquire swap chain image!");
@@ -1237,7 +1245,7 @@ namespace Engine {
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized ||
             window->isFramebufferResized()) {
             framebufferResized = false;
-            recreateBuffer= true;
+            recreateBuffer = true;
             recreateSwapChain();
 
         } else if (result != VK_SUCCESS) throw std::runtime_error("failed to present swap chain image!");

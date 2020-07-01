@@ -1,14 +1,12 @@
 #include "ui.h"
 #include "../renderer/window/GlfwWindow.h"
-#include "../components/Name.h"
-#include "../components/Relationship.h"
 
 namespace Engine {
     void checkVkResult(VkResult result) {
 
     }
 
-    UI::UI(VkRenderer *renderer, entt::registry &registry) : renderer{renderer}, registry{registry} {
+    UI::UI(VkRenderer *renderer) : renderer{renderer} {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO &io = ImGui::GetIO();
@@ -161,31 +159,9 @@ namespace Engine {
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        ImGui::ShowDemoWindow();
-        ImGui::Begin("Hierarchy");
-
-        auto nameView = registry.view<Name>();
-        for (auto entity: nameView) {
-            auto &name = nameView.get<Name>(entity);
-            //ImGui::BeginChild(name.name.c_str());
-            ImGui::Text("%s", name.name.c_str());
-            if (registry.has<Transform>(entity)) {
-                auto &t = registry.get<Transform>(entity);
-                ImGui::InputFloat3((name.name+": Location").c_str(), &t.location.x);
-                ImGui::InputFloat3((name.name+": Scale").c_str(), &t.scale.x);
-                ImGui::InputFloat4((name.name+": Rotation").c_str(), &t.rotation.x);
-                t.dirty = true;
-            }
-            if (registry.has<Mesh>(entity)) {
-                auto &mesh = registry.get<Mesh>(entity);
-                for (int i=0;i<mesh.attributes.size();i++)
-                ImGui::ColorEdit4((name.name+": Color "+std::to_string(i)).c_str(),&mesh.attributes[i].material.color.x);
-            }
-            // ImGui::EndChild();
-
-        }
-        ImGui::End();
-
+        // ImGui::ShowDemoWindow();
+        for (auto widget:widgets)
+            widget->draw();
         ImGui::Render();
 
         renderFrame();

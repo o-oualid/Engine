@@ -24,42 +24,46 @@ namespace Engine {
             transform.location.z += cameraSpeed;
 
         input->HideCursor(input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT));
+
         transform.dirty = true;
 
         auto mousePos = input->getMousePos();
-        auto xpos = static_cast<float>(mousePos.x);
-        auto ypos = static_cast<float>(mousePos.y);
+        auto xPos = static_cast<float>(mousePos.x);
+        auto yPos = static_cast<float>(mousePos.y);
         if (firstMouse) {
-            lastX = xpos;
-            lastY = ypos;
+            lastX = xPos;
+            lastY = yPos;
             firstMouse = false;
         }
 
-        float xoffset = xpos - lastX;
-        float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-        lastX = xpos;
-        lastY = ypos;
+        float xOffset = xPos - lastX;
+        float yOffset = lastY - yPos;
+        lastX = xPos;
+        lastY = yPos;
 
-        float sensitivity = 0.01f; // change this value to your liking
-        xoffset *= sensitivity;
-        yoffset *= sensitivity;
+        float sensitivity = 0.01f;
+        xOffset *= sensitivity;
+        yOffset *= sensitivity;
 
-        if (!(input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT) || firstFrame)) return;
+        if ((input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT))) {
 
-        firstFrame = false;
-        yaw += xoffset;
-        pitch += yoffset;
+            float pitch = glm::pitch(transform.rotation);
+            float yaw = glm::yaw(transform.rotation);
+            float roll = glm::roll(transform.rotation);
 
-        // make sure that when pitch is out of bounds, screen doesn't get flipped
-        if (pitch > 89.0f) pitch = 89.0f;
-        if (pitch < -89.0f) pitch = -89.0f;
+            roll -= xOffset;
+            pitch += yOffset;
 
-        transform.rotation = glm::quat(glm::vec3(pitch, 0, -yaw));
+            // make sure that when pitch is out of bounds, screen doesn't get flipped
+            // if (pitch > 89.0f) pitch = 89.0f;
+            // if (pitch < -89.0f) pitch = -89.0f;
 
-
+            transform.rotation = glm::quat(glm::vec3(pitch, yaw, roll));
+        }
     }
 
-    PerspectiveCameraSystem::PerspectiveCameraSystem(entt::entity camera, Input *input,
+    PerspectiveCameraSystem::PerspectiveCameraSystem(entt::entity
+                                                     camera, Input *input,
                                                      entt::registry &registry) : camera{camera},
                                                                                  input{input},
                                                                                  System(registry) {}
