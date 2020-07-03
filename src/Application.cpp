@@ -5,6 +5,7 @@
 namespace Engine {
 
     Application::Application() {
+        Log::logger = &logger;
         registry.create();
         entt::entity camera = registry.create();
         registry.emplace<PerspectiveCamera>(camera);
@@ -14,6 +15,7 @@ namespace Engine {
         registry.emplace<Transform>(camera, cameraTransform);
         registry.emplace<Name>(camera, Name{"PerspectiveCamera"});
         registry.emplace<Relationship>(camera, Relationship{camera});
+        Log::logger = &logger;
         renderer = new VkRenderer(registry);
         window->init("Game", 800, 600);
         input = new Input((dynamic_cast<GlfwWindow *>(window))->window);
@@ -23,6 +25,7 @@ namespace Engine {
         renderer->init();
         ui = new UI(dynamic_cast<VkRenderer *>(renderer));
         systemsManager->attachSystem(new PerspectiveCameraSystem(camera, input, registry));
+
 
     }
 
@@ -51,4 +54,6 @@ namespace Engine {
         delete renderer;
         delete window;
     }
+
+
 }

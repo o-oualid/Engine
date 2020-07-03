@@ -3,6 +3,7 @@
 #include "../pch.h"
 #include "Model.h"
 #include "../components/Texture.h"
+#include "../logger/Logger.h"
 
 namespace Engine {
     class AssetsManager {

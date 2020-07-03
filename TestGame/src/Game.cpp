@@ -1,7 +1,7 @@
+#include <logger/TerminalLogger.h>
 #include "components/Car.h"
 #include "systems/EntitySystem.h"
 #include "Game.h"
-#include "Editor.h"
 
 using namespace Engine;
 
@@ -14,7 +14,12 @@ void Game::init() {
     entt::entity entity2 = renderer->addModel("data/models/test4.glb");
     registry.emplace<Car>(entity2, Car{0.4f});
     systemsManager->attachSystem(new EntitySystem(registry));
-    auto *editor = new Editor(registry);
+    editor = new Editor(registry, dynamic_cast<VkRenderer *>(renderer));
+    editor->init();
     ui->widgets.push_back(editor);
     renderer->uploadData();
+}
+
+Game::~Game() {
+    delete editor;
 }

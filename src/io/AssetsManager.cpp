@@ -219,8 +219,8 @@ namespace Engine {
         Texture texture{};
         texture.pixels = stbi_load(path.c_str(), &texture.width, &texture.height, &texture.channels,
                                    STBI_rgb_alpha);
-        if (!texture.pixels)
-            throw std::runtime_error("failed to load texture image!");
+        if (!texture.pixels) Log::logger->error("failed to load texture image!");
+        Log::logger->info("image loaded: " + path);
         return texture;
     }
 
@@ -231,14 +231,14 @@ namespace Engine {
     std::vector<char> AssetsManager::loadFile(const std::string &path) {
         std::ifstream file(path, std::ios::ate | std::ios::binary);
         if (!file.is_open())
-            throw std::runtime_error("failed to open file!");
+            Log::logger->error("failed to open file!");
 
         size_t fileSize = (size_t) file.tellg();
         std::vector<char> buffer(fileSize);
         file.seekg(0);
         file.read(buffer.data(), fileSize);
         file.close();
-        
+
         return buffer;
     }
 

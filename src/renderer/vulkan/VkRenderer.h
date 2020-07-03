@@ -61,6 +61,11 @@ namespace Engine {
         std::vector<VkImageView> swapChainImageViews;
         VkExtent2D extent;
         bool recreateBuffer= false;
+        std::vector<VkDescriptorSet> descriptorSets;
+        std::vector<VkTexture> vkTextures{};
+
+        VkTexture createTexture(const std::string &path);
+
     private:
         VkDebugUtilsMessengerEXT debugMessenger;
         VkSurfaceKHR surface;
@@ -93,7 +98,6 @@ namespace Engine {
         std::vector<VkDeviceMemory> uniformBuffersMemory;
 
         VkDescriptorPool descriptorPool;
-        std::vector<VkDescriptorSet> descriptorSets;
 
         std::vector<VkCommandBuffer> commandBuffers;
 
@@ -106,7 +110,6 @@ namespace Engine {
         AssetsManager assetsManager{};
 
         const int texturesCount = 3;
-        std::vector<VkTexture> vkTextures{};
 
 
         bool no = false;
@@ -165,8 +168,6 @@ namespace Engine {
         void createTextureImage(VkTexture &texture, const std::string &path);
 
         void createTextureImageView();
-
-        uint32_t createTexture(const std::string &path);
 
         void createTextureSampler();
 

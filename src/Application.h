@@ -4,9 +4,11 @@
 #include "renderer/window/GlfwWindow.h"
 #include "ui/ui.h"
 #include "entt/entt.hpp"
+#include "logger/TerminalLogger.h"
 
 namespace Engine {
     class Application {
+        TerminalLogger logger = TerminalLogger{};
     public:
         void run();
 

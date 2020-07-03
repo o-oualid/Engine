@@ -425,8 +425,7 @@ namespace Engine {
     }
 
     void VkRenderer::createDescriptorSetLayout() {
-        VkDescriptorSetLayoutBinding uboLayoutBinding{
-        };
+        VkDescriptorSetLayoutBinding uboLayoutBinding{};
         uboLayoutBinding.binding = 0;
         uboLayoutBinding.descriptorCount = 1;
         uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -699,9 +698,8 @@ namespace Engine {
                 VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
     }
 
-    uint32_t VkRenderer::createTexture(const std::string &path) {
-        VkTexture texture{
-        };
+    VkTexture VkRenderer::createTexture(const std::string &path) {
+        VkTexture texture{};
         createTextureImage(texture, path);
 
         texture.view = createImageView(texture.image, VK_FORMAT_R8G8B8A8_SRGB,
@@ -721,17 +719,16 @@ namespace Engine {
         samplerInfo.compareEnable = VK_FALSE;
         samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
         samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-
-        if (vkCreateSampler(device, &samplerInfo, nullptr, &texture.sampler) !=
-            VK_SUCCESS)
+        if (vkCreateSampler(device, &samplerInfo, nullptr, &texture.sampler) != VK_SUCCESS)
             throw std::runtime_error("failed to create texture sampler!");
-        vkTextures.push_back(texture);
-        return vkTextures.size() - 1;
+        return texture;
     }
 
     void VkRenderer::createTextureImage(VkTexture &texture,
                                         const std::string &path) {
         Texture rawTexture = assetsManager.loadTexture(path);
+        texture.width = rawTexture.width;
+        texture.height = rawTexture.height;
 
         VkDeviceSize imageSize = rawTexture.width * rawTexture.height * 4;
 
@@ -917,19 +914,17 @@ namespace Engine {
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
 
-        vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
-                             VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          graphicsPipeline);
+        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
         updateUniformBuffer(currentFrame);
 
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, &vertexBuffer, offsets);
         vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
         vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                pipelineLayout, 0, 1, &descriptorSets[i], 0,
-                                nullptr);
+                                pipelineLayout, 0, 1, &descriptorSets[i],
+                                0, nullptr);
 
         uint32_t textureId = 0;
         auto view = registry.view<Transform, Mesh>();
@@ -951,7 +946,6 @@ namespace Engine {
         }
 
         vkCmdEndRenderPass(commandBuffers[i]);
-
         if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
             throw std::runtime_error("failed to record command buffer!");
     }
@@ -1167,14 +1161,15 @@ namespace Engine {
             transform = registry.get<Transform>(currentEntity).getTransformMatrix() * transform;
             if (!registry.has<Relationship>(currentEntity)) break;
             if (currentEntity == registry.get<Relationship>(currentEntity).parent) break;
-                currentEntity = registry.get<Relationship>(currentEntity).parent;
+            currentEntity = registry.get<Relationship>(currentEntity).parent;
         }
         return transform;
     }
+
 //TODO: this is bad super bad
     void VkRenderer::deleteEntity(entt::entity entity) {
 
-            //registry.remove<Mesh>(entity);
+        //registry.remove<Mesh>(entity);
 
     }
 
@@ -1526,7 +1521,7 @@ namespace Engine {
 
     void VkRenderer::loadModel() {
         for (int i = 0; i < texturesCount; i++)
-            createTexture("data/textures/viking_room.png");
+            vkTextures.push_back(createTexture("data/textures/viking_room.png"));
     }
 
     entt::entity VkRenderer::addModel(const std::string &path) {
