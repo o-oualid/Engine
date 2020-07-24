@@ -16,13 +16,13 @@ namespace Engine {
         enum class Key {
             UNKNOWN = -1,
 
-/* Printable keys */
+            /* Printable keys */
             SPACE = 32,
-            APOSTROPHE = 39,  /* ' */
-            COMMA = 44, /* , */
-            MINUS = 45,/* - */
-            PERIOD = 46,/* . */
-            SLASH = 47,/* / */
+            APOSTROPHE = 39, /* ' */
+            COMMA = 44,      /* , */
+            MINUS = 45,      /* - */
+            PERIOD = 46,     /* . */
+            SLASH = 47,      /* / */
             ZERO = 48,
             ONE = 49,
             TWO = 50,
@@ -33,8 +33,8 @@ namespace Engine {
             SEVEN = 55,
             EIGHT = 56,
             NINE = 57,
-            SEMICOLON = 59,  /* ; */
-            EQUAL = 61,  /* = */
+            SEMICOLON = 59, /* ; */
+            EQUAL = 61,     /* = */
             A = 65,
             B = 66,
             C = 67,
@@ -62,13 +62,13 @@ namespace Engine {
             Y = 89,
             Z = 90,
             LEFT_BRACKET = 91,  /* [ */
-            BACKSLASH = 92,  /* \ */
-            RIGHT_BRACKET = 93,  /* ] */
+            BACKSLASH = 92,     /* \ */
+            RIGHT_BRACKET = 93, /* ] */
             GRAVE_ACCENT = 96,  /* ` */
-            WORLD_1 = 161, /* non-US #1 */
-            WORLD_2 = 162, /* non-US #2 */
+            WORLD_1 = 161,      /* non-US #1 */
+            WORLD_2 = 162,      /* non-US #2 */
 
-/* Function keys */
+            /* Function keys */
             ESCAPE = 256,
             ENTER = 257,
             TAB = 258,
@@ -168,4 +168,4 @@ namespace Engine {
 
         bool isMouseKeyPressed(MouseKey key);
     };
-}
+}// namespace Engine

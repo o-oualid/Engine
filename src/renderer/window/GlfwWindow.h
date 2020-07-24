@@ -3,14 +3,15 @@
 #define GLFW_INCLUDE_VULKAN
 
 
-#include <GLFW/glfw3.h>
 #include "../../pch.h"
 #include "Window.h"
+#include <GLFW/glfw3.h>
 
 namespace Engine {
     class GlfwWindow : public Window {
-       int tempWidth= 0;
-       int tempHeight= 0;
+        int tempWidth = 0;
+        int tempHeight = 0;
+
     public:
         GLFWwindow *window;
 
@@ -37,4 +38,4 @@ namespace Engine {
 
         bool isFramebufferResized() override;
     };
-}
+}// namespace Engine

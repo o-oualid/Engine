@@ -5,7 +5,7 @@
 namespace Engine {
     class Window {
     public:
-        bool fullScreen= true;
+        bool fullScreen = true;
         virtual void init(const std::string &title, int width, int height) = 0;
 
         virtual bool shouldClose() = 0;
@@ -20,8 +20,8 @@ namespace Engine {
 
         virtual std::vector<const char *> getRequiredExtensions() = 0;
 
-        virtual bool isFramebufferResized()=0;
+        virtual bool isFramebufferResized() = 0;
 
-        virtual ~Window() =default;
+        virtual ~Window() = default;
     };
-}
+}// namespace Engine

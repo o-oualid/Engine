@@ -7,4 +7,4 @@ namespace Engine {
     public:
         std::string name;
     };
-}
+}// namespace Engine

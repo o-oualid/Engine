@@ -7,4 +7,4 @@ namespace Engine {
     public:
         entt::entity parent{entt::null};
     };
-}
+}// namespace Engine

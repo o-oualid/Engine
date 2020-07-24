@@ -5,12 +5,9 @@ namespace Engine {
         return glfwGetKey(window, (int) key) == GLFW_PRESS;
     }
 
-    Input::Input() {
-
-    }
+    Input::Input() = default;
 
     Input::Input(GLFWwindow *window) : window{window} {
-
     }
 
     Input::Point Input::getMousePos() {
@@ -25,11 +22,11 @@ namespace Engine {
     void Input::HideCursor(bool flag) {
         if (flag)
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        else glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
+        else
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 
     bool Input::isMouseKeyPressed(Input::MouseKey key) {
         return glfwGetMouseButton(window, (int) key) == GLFW_PRESS;
     }
-}
+}// namespace Engine

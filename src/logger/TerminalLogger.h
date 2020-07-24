@@ -5,7 +5,6 @@
 namespace Engine {
     class TerminalLogger final : public Logger {
     public:
-
         void info(std::string message) final;
 
         void warn(std::string message) final;
@@ -13,6 +12,5 @@ namespace Engine {
         void error(std::string message) final;
 
         ~TerminalLogger() final = default;
-
     };
-}
+}// namespace Engine

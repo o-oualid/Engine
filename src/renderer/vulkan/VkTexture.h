@@ -16,4 +16,4 @@ namespace Engine {
 
         void free(const VkDevice &device);
     };
-} // namespace Engine
+}// namespace Engine

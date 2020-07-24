@@ -1,10 +1,9 @@
 #pragma once
 
-#include "System.h"
 #include "../components/PerspectiveCamera.h"
 #include "../io/Input.h"
+#include "System.h"
 #include <glm/gtx/quaternion.hpp>
-
 
 namespace Engine {
     class PerspectiveCameraSystem final : public System {
@@ -14,7 +13,6 @@ namespace Engine {
         float speed = 1;
 
         bool firstMouse = true;
-
         float lastX = 0;
         float lastY = 0;
 
@@ -25,4 +23,4 @@ namespace Engine {
 
         ~PerspectiveCameraSystem() final = default;
     };
-}
+}// namespace Engine

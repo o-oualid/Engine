@@ -14,6 +14,10 @@ target_include_directories(tinyobjloader INTERFACE tinyobjloader)
 
 add_subdirectory(entt)
 
+add_library(toml INTERFACE)
+target_include_directories(toml INTERFACE tomlplusplus/include)
+
+
 file(GLOB IMGUI_SOURCE_FILES "imgui/*.cpp" "imgui/*.h" "imgui/misc/*.cpp" "imgui/misc/*.h" )
 add_library(imgui ${IMGUI_SOURCE_FILES})
 target_include_directories(imgui INTERFACE imgui)

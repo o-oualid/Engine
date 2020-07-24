@@ -1,27 +1,25 @@
 #pragma once
 
-#include <entt/entity/registry.hpp>
 #include "../Renderer.h"
+#include <entt/entity/registry.hpp>
 
-#include "../../pch.h"
+#include "../../Vertex.h"
 #include "../../components/Camera.h"
 #include "../../components/Mesh.h"
+#include "../../io/AssetsManager.h"
+#include "../../pch.h"
 #include "../../systems/PerspectiveCameraSystem.h"
 #include "../../systems/SystemsManager.h"
-#include "../../Vertex.h"
-#include "../../io/AssetsManager.h"
 #include "VkTexture.h"
 
 namespace Engine {
     const int MAX_FRAMES_IN_FLIGHT = 2;
 
     const std::vector<const char *> validationLayers = {
-            "VK_LAYER_KHRONOS_validation"
-    };
+            "VK_LAYER_KHRONOS_validation"};
 
     const std::vector<const char *> deviceExtensions = {
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
@@ -60,7 +58,7 @@ namespace Engine {
 
         std::vector<VkImageView> swapChainImageViews;
         VkExtent2D extent;
-        bool recreateBuffer= false;
+        bool recreateBuffer = false;
         std::vector<VkDescriptorSet> descriptorSets;
         std::vector<VkTexture> vkTextures{};
 
@@ -89,10 +87,12 @@ namespace Engine {
 
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
-        VkBuffer vertexBuffer;
-        VkDeviceMemory vertexBufferMemory;
-        VkBuffer indexBuffer;
-        VkDeviceMemory indexBufferMemory;
+
+        VkBuffer vertexBuffers[2] = {VK_NULL_HANDLE, VK_NULL_HANDLE};
+        VkDeviceMemory vertexBuffersMemory[2] = {VK_NULL_HANDLE, VK_NULL_HANDLE};
+        VkBuffer indexBuffers[2] = {VK_NULL_HANDLE, VK_NULL_HANDLE};
+        VkDeviceMemory indexBuffersMemory[2] = {VK_NULL_HANDLE, VK_NULL_HANDLE};
+        uint32_t usedBuffer = 0;
 
         std::vector<VkBuffer> uniformBuffers;
         std::vector<VkDeviceMemory> uniformBuffersMemory;
@@ -205,7 +205,6 @@ namespace Engine {
 
         void updateUniformBuffer(size_t currentImage);
 
-
         VkShaderModule createShaderModule(const std::vector<char> &code);
 
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
@@ -231,13 +230,14 @@ namespace Engine {
                                                             VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                             const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
                                                             void *pUserData) {
-            std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+            std::cerr << pCallbackData->pMessage << std::endl;
 
             return VK_FALSE;
         }
 
 
         entt::registry &registry;
+
     public:
         entt::entity addModel(const std::string &path) override;
 
@@ -269,6 +269,6 @@ namespace Engine {
 
         void present() override;
 
-        void deleteEntity(entt::entity entity);
+        bool areBuffersUpdated = false;
     };
-}
+}// namespace Engine

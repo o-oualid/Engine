@@ -1,5 +1,5 @@
-#include <cstring>
 #include "VkTexture.h"
+#include <cstring>
 
 namespace Engine {
 
@@ -12,4 +12,4 @@ namespace Engine {
         vkDestroyImage(device, image, nullptr);
         vkFreeMemory(device, memory, nullptr);
     }
-}
+}// namespace Engine

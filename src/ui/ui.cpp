@@ -2,9 +2,7 @@
 #include "../renderer/window/GlfwWindow.h"
 
 namespace Engine {
-    void checkVkResult(VkResult result) {
-
-    }
+    void checkVkResult(VkResult result) {}
 
     UI::UI(VkRenderer *renderer) : renderer{renderer} {
         IMGUI_CHECKVERSION();
@@ -54,7 +52,8 @@ namespace Engine {
         VkCommandPoolCreateInfo commandPoolCreateInfo = {};
         commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         commandPoolCreateInfo.queueFamilyIndex = renderer->findQueueFamilies(
-                renderer->physicalDevice).graphicsFamily.value();
+                                                                 renderer->physicalDevice)
+                                                         .graphicsFamily.value();
         commandPoolCreateInfo.flags = flags;
 
         if (vkCreateCommandPool(renderer->device, &commandPoolCreateInfo, nullptr, commandPool) != VK_SUCCESS) {
@@ -92,18 +91,17 @@ namespace Engine {
     void UI::createDescriptorPool() {
         VkDescriptorPoolSize pool_sizes[] =
                 {
-                        {VK_DESCRIPTOR_TYPE_SAMPLER,                1000},
+                        {VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
                         {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
-                        {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,          1000},
-                        {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,          1000},
-                        {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,   1000},
-                        {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER,   1000},
-                        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,         1000},
-                        {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,         1000},
+                        {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
+                        {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000},
+                        {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000},
+                        {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000},
+                        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000},
+                        {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000},
                         {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
                         {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
-                        {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,       1000}
-                };
+                        {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000}};
         VkDescriptorPoolCreateInfo pool_info = {};
         pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
@@ -138,7 +136,7 @@ namespace Engine {
         dependency.dstSubpass = 0;
         dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.srcAccessMask = 0;  // or VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependency.srcAccessMask = 0;// or VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
         dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
         VkRenderPassCreateInfo info = {};
@@ -160,7 +158,7 @@ namespace Engine {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         // ImGui::ShowDemoWindow();
-        for (auto widget:widgets)
+        for (auto widget : widgets)
             widget->draw();
         ImGui::Render();
 
@@ -220,4 +218,4 @@ namespace Engine {
         ImGui::DestroyContext();
         vkDestroyDescriptorPool(renderer->device, descriptorPool, nullptr);
     }
-}
+}// namespace Engine

@@ -5,9 +5,10 @@ namespace Engine {
     class System {
     protected:
         entt::registry &registry;
+
     public:
-        System(entt::registry& registry) : registry{registry}{}
+        System(entt::registry &registry) : registry{registry} {}
         virtual void update(const float &delta) = 0;
         virtual ~System() = default;
     };
-}
+}// namespace Engine

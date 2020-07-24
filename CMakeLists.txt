@@ -10,7 +10,7 @@ file(GLOB_RECURSE  SOURCE_FILES "src/*.h" "src/*.cpp")
 add_library(Engine ${SOURCE_FILES})
 target_include_directories(Engine INTERFACE src)
 
-target_link_libraries(Engine Vulkan::Vulkan glfw glm stb tinyobjloader EnTT imgui_impl tinygltf)
+target_link_libraries(Engine Vulkan::Vulkan glfw glm stb tinyobjloader EnTT imgui_impl tinygltf toml)
 
 
 add_subdirectory(Editor)

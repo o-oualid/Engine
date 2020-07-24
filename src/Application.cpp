@@ -1,23 +1,23 @@
 #include "Application.h"
-#include "components/Relationship.h"
 #include "components/Name.h"
+#include "components/Relationship.h"
 
 namespace Engine {
 
-    Application::Application() {
+    Application::Application(std::string name)
+        : name{name} {
         Log::logger = &logger;
         registry.create();
         entt::entity camera = registry.create();
         registry.emplace<PerspectiveCamera>(camera);
         Transform cameraTransform{};
-        cameraTransform.location = {0.0f, 0.0f, 0.5f};
-        cameraTransform.rotation = {0.707107f, 0.707107f, 0.0f, 0.0f};
+        cameraTransform.location = {0.0f, 0.5f, 3.0f};
         registry.emplace<Transform>(camera, cameraTransform);
         registry.emplace<Name>(camera, Name{"PerspectiveCamera"});
         registry.emplace<Relationship>(camera, Relationship{camera});
         Log::logger = &logger;
         renderer = new VkRenderer(registry);
-        window->init("Game", 800, 600);
+        window->init(name, 800, 600);
         input = new Input((dynamic_cast<GlfwWindow *>(window))->window);
 
         renderer->window = window;
@@ -25,8 +25,6 @@ namespace Engine {
         renderer->init();
         ui = new UI(dynamic_cast<VkRenderer *>(renderer));
         systemsManager->attachSystem(new PerspectiveCameraSystem(camera, input, registry));
-
-
     }
 
     void Application::run() {
@@ -55,5 +53,4 @@ namespace Engine {
         delete window;
     }
 
-
-}
+}// namespace Engine

@@ -3,8 +3,8 @@
 #include <glm/vec4.hpp>
 
 namespace Engine {
-    class Material{
+    class Material {
     public:
         glm::vec4 color{};
     };
-}
+}// namespace Engine

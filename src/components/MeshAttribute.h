@@ -10,4 +10,4 @@ namespace Engine {
         uint32_t vertexStart;
         Material material{};
     };
-}
+}// namespace Engine

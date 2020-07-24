@@ -1,13 +1,14 @@
 #pragma once
 
-#include "../pch.h"
-#include "Model.h"
 #include "../components/Texture.h"
 #include "../logger/Logger.h"
+#include "../pch.h"
+#include "Model.h"
 
 namespace Engine {
     class AssetsManager {
-        std::unordered_map<std::string ,std::vector<char>> files{};
+        std::unordered_map<std::string, std::vector<char>> files{};
+
     public:
         Model loadModel(const std::string &path);
 
@@ -17,4 +18,4 @@ namespace Engine {
 
         std::vector<char> loadFile(const std::string &path);
     };
-}
+}// namespace Engine

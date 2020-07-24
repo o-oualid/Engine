@@ -5,4 +5,4 @@ namespace Engine {
         int width, height, channels;
         unsigned char *pixels;
     };
-}
+}// namespace Engine

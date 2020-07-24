@@ -11,4 +11,4 @@ namespace Engine {
 
         virtual ~Widget() = default;
     };
-}
+}// namespace Engine

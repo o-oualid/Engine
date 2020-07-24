@@ -36,5 +36,5 @@ VkVertexInputBindingDescription Vertex::getBindingDescription() {
 }
 
 bool Vertex::operator==(const Vertex &other) const {
-    return pos == other.pos && color == other.color && uv == other.uv&&other.normal==normal;
+    return pos == other.pos && color == other.color && uv == other.uv && other.normal == normal;
 }

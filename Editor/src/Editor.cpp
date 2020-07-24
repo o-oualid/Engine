@@ -1,14 +1,15 @@
 #include "Editor.h"
 #include "components/Car.h"
-#include <filesystem>
 #include <components/Name.h>
 #include <components/Relationship.h>
+#include <filesystem>
+#include <glm/gtx/intersect.hpp>
 #include <imgui_impl_vulkan.h>
+
 
 using namespace Engine;
 
 Editor::Editor(entt::registry &registry, Engine::VkRenderer *renderer) : registry{registry}, renderer{renderer} {
-
 }
 
 void Editor::init() {
@@ -20,6 +21,8 @@ void Editor::init() {
 
 void Editor::draw() {
     //ImGui::ShowDemoWindow();
+    //selectedEntity = getSelectedEntity();
+
     drawDockSpace();
     drawHierarchy();
     drawProperties();
@@ -42,7 +45,11 @@ void Editor::directoryContent(std::string path) {
         } else {
             if (selectedFile == entry.path().string()) flags |= ImGuiTreeNodeFlags_Selected;
             ImGui::TreeNodeEx("Object", flags, "%s", getFileName(entry.path().string()).c_str());
-            if (ImGui::IsItemClicked())selectedFile = entry.path().string();
+            if (ImGui::IsItemClicked()) {
+                selectedFile = entry.path().string();
+                if (hasEnding(selectedFile, ".gltf") || hasEnding(selectedFile, ".glb"))
+                    selectedEntity = renderer->addModel(entry.path().string());
+            }
         }
     }
 }
@@ -83,31 +90,46 @@ void Editor::drawDockSpace() {
 
 void Editor::drawHierarchy() {
     ImGui::Begin("Hierarchy");
-    auto nameView = registry.view<Name>();
+    if (ImGui::Button("Add Entity"))
+        selectedEntity = registry.create();
 
-    for (auto entity: nameView) {
-        auto &name = nameView.get<Name>(entity);
+    entt::registry &reg = registry;
+    auto &sel = selectedEntity;
+    registry.each([&reg, &sel](auto entity) {
+        std::string name = "null";
+        if (reg.has<Name>(entity))
+            name = reg.get<Name>(entity).name;
+
         static bool closable_group = true;
-        ImGuiTreeNodeFlags flags =
-                ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
-        if (entity == selectedEntity) flags |= ImGuiTreeNodeFlags_Selected;
-        ImGui::TreeNodeEx((name.name + ": " + std::to_string((uint32_t) entity)).c_str(), flags, "%s",
-                          (name.name + ": " + std::to_string((uint32_t) entity)).c_str());
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth |
+                                   ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen |
+                                   ImGuiTreeNodeFlags_Bullet;
+        if (entity == sel) flags |= ImGuiTreeNodeFlags_Selected;
+        ImGui::TreeNodeEx((std::to_string((uint32_t) entity)).c_str(), flags, "%s",
+                          (name + ": " + std::to_string((uint32_t) entity)).c_str());
         if (ImGui::IsItemClicked())
-            selectedEntity = entity;
+            sel = entity;
 
-    }
+        if (ImGui::BeginPopupContextItem()) {
+            if (ImGui::MenuItem("remove")) reg.destroy(entity);
+            if (ImGui::MenuItem("duplicate"))
+                ;
+
+            ImGui::EndPopup();
+        }
+    });
     ImGui::End();
 }
 
 void Editor::drawProperties() {
     ImGui::Begin("Properties");
-    if (selectedEntity != entt::null) {
-
+    if (registry.valid(selectedEntity) && selectedEntity != entt::null) {
         if (registry.has<Name>(selectedEntity)) {
             std::string &name = registry.get<Name>(selectedEntity).name;
-            ImGui::InputText("Name", name.data(), name.capacity());
+            ImGui::InputText("Name", name.data(), name.capacity() - 1);
 
+        } else if (ImGui::Button("add Name")) {
+            registry.emplace<Name>(selectedEntity, "new Name");
         }
 
         if (registry.has<Transform>(selectedEntity)) {
@@ -116,10 +138,13 @@ void Editor::drawProperties() {
                 ImGui::InputFloat3("Location##", &t.location.x);
                 ImGui::InputFloat3("Scale", &t.scale.x);
                 ImGui::InputFloat4("Rotation", &t.rotation.x);
+                if (ImGui::IsItemEdited()) t.rotation = glm::normalize(t.rotation);
                 t.dirty = true;
                 ImGui::TreePop();
                 ImGui::Separator();
             }
+        } else if (ImGui::Button("add Transform")) {
+            registry.emplace<Transform>(selectedEntity);
         }
         if (registry.has<Mesh>(selectedEntity)) {
 
@@ -134,11 +159,27 @@ void Editor::drawProperties() {
         }
         if (registry.has<Relationship>(selectedEntity)) {
             auto &relation = registry.get<Relationship>(selectedEntity);
-            ImGui::InputScalar("Parent", ImGuiDataType_U32, &relation.parent);
-        }
+            if (ImGui::TreeNode("Parent")) {
+                if (registry.valid(relation.parent)) {
+                    ImGui::InputScalar("Id", ImGuiDataType_U32, &relation.parent);
+                    if (registry.has<Name>(relation.parent))
+                        ImGui::Text("%s", registry.get<Name>(relation.parent).name.c_str());
+                } else {
+                    //ImGui::PushStyleColor();
+                    ImGui::InputScalar("Parent", ImGuiDataType_U32, &relation.parent);
+                    // ImGui::PopStyleColor();
+                }
+                ImGui::TreePop();
+                ImGui::Separator();
+            }
+        } else if (ImGui::Button("add Parent"))
+            registry.emplace<Relationship>(selectedEntity, selectedEntity);
+
         if (registry.has<Car>(selectedEntity)) {
             auto &car = registry.get<Car>(selectedEntity);
             ImGui::InputFloat("Speed", &car.speed);
+        } else if (ImGui::Button("add Car")) {
+            registry.emplace<Car>(selectedEntity, 0.0f);
         }
     }
     ImGui::End();
@@ -159,7 +200,7 @@ void Editor::drawScene() {
     if (!selectedFile.empty()) {
         if (currentFile != selectedFile) {
             if (hasEnding(selectedFile, ".png")) {
-                if (!currentFile.empty())texture.free(renderer->device);
+                if (!currentFile.empty()) texture.free(renderer->device);
                 texture = renderer->createTexture(selectedFile);
                 currentFile = selectedFile;
             }
@@ -174,8 +215,8 @@ void Editor::drawScene() {
                 height = ImGui::GetWindowSize().y;
             }
             ImGui::Image(ImGui_ImplVulkan_AddTexture(texture.sampler, texture.view,
-                                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), {width, height});
-
+                                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL),
+                         {width, height});
         }
     }
 
@@ -188,6 +229,42 @@ bool Editor::hasEnding(std::string const &fullString, std::string const &ending)
     } else {
         return false;
     }
+}
+
+entt::entity Editor::getSelectedEntity() {
+    entt::entity clickedEntity = entt::null;
+    if (ImGui::IsMouseClicked(ImGuiMouseButton_Left, false)) {
+        glm::vec2 mousePos = {ImGui::GetMousePos().x, ImGui::GetMousePos().y};
+
+        auto cameraTransform = renderer->getGlobalTransform(renderer->camera);
+        auto cameraView = glm::inverse(cameraTransform);
+        auto cameraProjection = registry.get<PerspectiveCamera>(renderer->camera).projection();
+        int width, height;
+        renderer->window->getFramebufferSize(width, height);
+        float x = (2.0f * mousePos.x) / width - 1.0f;
+        float y = 1.0f - (2.0f * mousePos.y) / height;
+        glm::vec4 ray_clip = glm::vec4(x, y, -1.0f, 1.0f);
+        glm::vec4 ray_eye = glm::inverse(cameraProjection) * ray_clip;
+        ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
+        glm::vec3 ray_wor = (inverse(cameraView) * ray_eye);
+        ray_wor = glm::normalize(ray_wor);
+        auto cameraPos = glm::vec3{cameraTransform[3]};
+        auto view = registry.view<Transform, Mesh, Name>();
+        float lowDist = 100;
+        for (auto entity : view) {
+            auto meshPos = glm::vec3(renderer->getGlobalTransform(entity)[3]);
+            float distance = 0.1f;
+            glm::intersectRaySphere(cameraPos, ray_wor, meshPos, 1.0f, distance);
+
+            if (distance < lowDist) {
+                logger.info(registry.get<Name>(entity).name + ", distance: " + std::to_string(distance));
+                lowDist = distance;
+                clickedEntity = entity;
+            }
+        }
+        if (lowDist < 1) return clickedEntity;
+    }
+    return selectedEntity;
 }
 
 void Editor::initSampler() {
@@ -212,7 +289,7 @@ void Editor::initSampler() {
 }
 
 Editor::~Editor() {
-    if (!currentFile.empty())texture.free(renderer->device);
+    if (!currentFile.empty()) texture.free(renderer->device);
 }
 
 void Editor::setStyle() {
@@ -229,7 +306,7 @@ void Editor::setStyle() {
     st.GrabRounding = 0.0f;
     st.TabRounding = 0.0f;
 
-// Setup style
+    // Setup style
     ImVec4 *colors = ImGui::GetStyle().Colors;
     colors[ImGuiCol_DockingPreview] = ImVec4(0.000f, 0.000f, 0.000f, 1.000f);
     colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 0.95f);

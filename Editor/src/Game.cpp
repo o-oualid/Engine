@@ -5,14 +5,10 @@
 
 using namespace Engine;
 
+Game::Game():Application("Editor"){}
+
 void Game::init() {
-    renderer->addModel("data/models/test2.glb");
-    entt::entity entity = renderer->addModel("data/models/test.glb");
-    registry.emplace<Car>(entity, Car{0.5f});
-    entt::entity entity1 = renderer->addModel("data/models/test3.glb");
-    registry.emplace<Car>(entity1, Car{0.45f});
-    entt::entity entity2 = renderer->addModel("data/models/test4.glb");
-    registry.emplace<Car>(entity2, Car{0.4f});
+    renderer->addModel("data/models/cars/race.glb");
     systemsManager->attachSystem(new EntitySystem(registry));
     editor = new Editor(registry, dynamic_cast<VkRenderer *>(renderer));
     editor->init();

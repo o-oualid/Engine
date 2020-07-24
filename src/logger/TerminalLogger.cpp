@@ -1,5 +1,5 @@
-#include <iostream>
 #include "TerminalLogger.h"
+#include <iostream>
 
 namespace Engine {
     void TerminalLogger::info(std::string message) {
@@ -14,4 +14,4 @@ namespace Engine {
         //std::cout << "\x1B[31m Error: " << message << "\033[0m" << std::endl;
         throw std::runtime_error(message);
     }
-}
+}// namespace Engine

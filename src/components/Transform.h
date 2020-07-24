@@ -1,14 +1,15 @@
 #pragma once
 
-#include <glm/detail/type_quat.hpp>
-#include "glm/glm.hpp"
 #include "entt/entt.hpp"
+#include "glm/glm.hpp"
+#include <glm/detail/type_quat.hpp>
 namespace Engine {
     class Transform {
     private:
         glm::mat4 transformMatrix;
+
     public:
-        bool dirty= true;
+        bool dirty = true;
         bool isDirty() const;
 
         glm::vec3 location = {0, 0, 0};
@@ -16,6 +17,6 @@ namespace Engine {
         glm::vec3 scale = {1, 1, 1};
 
         glm::mat4 getTransformMatrix();
-        glm::mat4 getGlobalTransform(entt::registry& registry);
+        glm::mat4 getGlobalTransform(entt::registry &registry);
     };
-}
+}// namespace Engine

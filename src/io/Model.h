@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
 #include "MeshData.h"
 #include "NodeData.h"
+#include <vector>
 
 
 namespace Engine {
@@ -11,4 +11,4 @@ namespace Engine {
         std::vector<NodeData> nodes{};
         std::vector<MeshData> meshData{};
     };
-}
+}// namespace Engine

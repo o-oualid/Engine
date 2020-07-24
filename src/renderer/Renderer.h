@@ -1,12 +1,12 @@
 #pragma once
-
 #include "../components/Camera.h"
 #include "window/Window.h"
+#include <entt/entt.hpp>
+
 
 namespace Engine {
     class Renderer {
     public:
-
         entt::entity camera;
         Window *window;
         bool vSync = true;
@@ -24,6 +24,5 @@ namespace Engine {
         virtual void uploadData() = 0;
 
         virtual ~Renderer() = default;
-
     };
-}
+}// namespace Engine

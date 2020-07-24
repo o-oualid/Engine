@@ -45,4 +45,6 @@ private:
     void setStyle();
 
     bool hasEnding(const std::string &fullString, const std::string &ending);
+
+    entt::entity getSelectedEntity();
 };

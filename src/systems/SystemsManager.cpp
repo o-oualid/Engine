@@ -8,7 +8,6 @@ namespace Engine {
     }
 
     void SystemsManager::detachSystem(System *system) {
-
     }
 
     void SystemsManager::updateSystems(const float &delta) {
@@ -20,4 +19,4 @@ namespace Engine {
         delete[] systems;
     }
 
-}
+}// namespace Engine

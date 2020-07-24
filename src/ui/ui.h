@@ -1,13 +1,14 @@
-#include "imgui.h"
-#include "imgui_impl_vulkan.h"
-#include "imgui_impl_glfw.h"
 #include "../renderer/vulkan/VkRenderer.h"
 #include "Widget.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_vulkan.h"
 
 namespace Engine {
     class UI {
     public:
-        std::vector<Widget*> widgets{};
+        std::vector<Widget *> widgets{};
+
     private:
         VkRenderer *renderer;
         VkDescriptorPool descriptorPool;
@@ -37,4 +38,4 @@ namespace Engine {
 
         void renderFrame();
     };
-}
+}// namespace Engine

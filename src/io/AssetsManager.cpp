@@ -11,6 +11,13 @@
 #include <tiny_gltf.h>
 
 namespace Engine {
+    bool hasEnding(std::string const &fullString, std::string const &ending) {
+        if (fullString.length() >= ending.length()) {
+            return (0 == fullString.compare(fullString.length() - ending.length(), ending.length(), ending));
+        } else {
+            return false;
+        }
+    }
 
     Model AssetsManager::loadModel(const std::string &path) {
         Model mModel;
@@ -18,8 +25,12 @@ namespace Engine {
         tinygltf::TinyGLTF loader;
         std::string err;
         std::string warn;
-        loader.LoadBinaryFromFile(&model, &err, &warn, path);
-        for (auto node:model.nodes) {
+        if (hasEnding(path, ".glb"))
+            loader.LoadBinaryFromFile(&model, &err, &warn, path);
+        else
+            loader.LoadASCIIFromFile(&model, &err, &warn, path);
+
+        for (auto node : model.nodes) {
             NodeData nodeData{};
             nodeData.meshId = node.mesh;
             nodeData.name = node.name;
@@ -29,7 +40,8 @@ namespace Engine {
                 nodeData.transform.location = {
                         (float) node.translation[0],
                         (float) node.translation[1],
-                        (float) node.translation[2],};
+                        (float) node.translation[2],
+                };
             }
 
             if (!node.rotation.empty()) {
@@ -40,18 +52,20 @@ namespace Engine {
             }
 
             if (!node.scale.empty()) {
-                nodeData.transform.scale = {(float) node.scale[0],
-                                            (float) node.scale[1],
-                                            (float) node.scale[2],};
+                nodeData.transform.scale = {
+                        (float) node.scale[0],
+                        (float) node.scale[1],
+                        (float) node.scale[2],
+                };
             }
 
             mModel.nodes.push_back(nodeData);
         }
 
-        for (const auto &mesh:model.meshes) {
+        for (const auto &mesh : model.meshes) {
             MeshData meshData{};
 
-            for (tinygltf::Primitive primitive:mesh.primitives) {
+            for (tinygltf::Primitive primitive : mesh.primitives) {
                 PrimitiveData primitiveData{};
                 const tinygltf::Accessor &vertexAccessor = model.accessors[primitive.attributes["POSITION"]];
                 const tinygltf::BufferView &vertexBufferView = model.bufferViews[vertexAccessor.bufferView];
@@ -64,9 +78,8 @@ namespace Engine {
                     const tinygltf::Accessor &normalAccessor = model.accessors[primitive.attributes["NORMAL"]];
                     const tinygltf::BufferView &normalBufferView = model.bufferViews[normalAccessor.bufferView];
                     const tinygltf::Buffer &normalBuffer = model.buffers[normalBufferView.buffer];
-                    normals = reinterpret_cast<const float *>(&normalBuffer.data[
-                            normalBufferView.byteOffset +
-                            normalAccessor.byteOffset]);
+                    normals = reinterpret_cast<const float *>(&normalBuffer.data[normalBufferView.byteOffset +
+                                                                                 normalAccessor.byteOffset]);
                 }
                 bool hasVertexColor = primitive.attributes["COLOR_0"] != NULL;
                 const float *colors;
@@ -91,23 +104,40 @@ namespace Engine {
 
                 for (size_t i = 0; i < vertexAccessor.count; ++i) {
                     Vertex vertex{};
-                    vertex.pos = {positions[i * 3 + 0],
-                                  positions[i * 3 + 1],
-                                  positions[i * 3 + 2],};
+                    vertex.pos = {
+                            positions[i * 3 + 0],
+                            positions[i * 3 + 1],
+                            positions[i * 3 + 2],
+                    };
 
                     if (hasNormals) {
-                        vertex.normal = {normals[i * 3 + 0],
-                                         normals[i * 3 + 1],
-                                         normals[i * 3 + 2],};
-                    } else vertex.normal = {0, 0, 1,};
+                        vertex.normal = {
+                                normals[i * 3 + 0],
+                                normals[i * 3 + 1],
+                                normals[i * 3 + 2],
+                        };
+                    } else
+                        vertex.normal = {
+                                0,
+                                0,
+                                1,
+                        };
                     if (hasVertexColor) {
-                        vertex.color = {colors[i * 4 + 0],
-                                        colors[i * 4 + 1],
-                                        colors[i * 4 + 2],};
-                    } else vertex.color = {1, 0, 1,};
+                        vertex.color = {
+                                colors[i * 4 + 0],
+                                colors[i * 4 + 1],
+                                colors[i * 4 + 2],
+                        };
+                    } else
+                        vertex.color = {
+                                1,
+                                0,
+                                1,
+                        };
 
                     if (hasUV) vertex.uv = {uv[i * 2 + 0], uv[i * 2 + 1]};
-                    else vertex.uv = {1.0f, 1.0f};
+                    else
+                        vertex.uv = {1.0f, 1.0f};
 
                     primitiveData.vertices.push_back(vertex);
                 }
@@ -118,21 +148,17 @@ namespace Engine {
                 switch (indexAccessor.componentType) {
                     case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT: {
                         const uint16_t *indices;
-                        indices = reinterpret_cast<const uint16_t *>(&indexBuffer.data[
-                                indexBufferView.byteOffset +
-                                indexAccessor.byteOffset]);
+                        indices = reinterpret_cast<const uint16_t *>(&indexBuffer.data[indexBufferView.byteOffset +
+                                                                                       indexAccessor.byteOffset]);
                         for (size_t i = 0; i < indexAccessor.count; ++i) primitiveData.indices.push_back(indices[i]);
 
-                    }
-                        break;
+                    } break;
                     case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT: {
                         const uint32_t *indices;
-                        indices = reinterpret_cast<const uint32_t *>(&indexBuffer.data[
-                                indexBufferView.byteOffset +
-                                indexAccessor.byteOffset]);
+                        indices = reinterpret_cast<const uint32_t *>(&indexBuffer.data[indexBufferView.byteOffset +
+                                                                                       indexAccessor.byteOffset]);
                         for (size_t i = 0; i < indexAccessor.count; ++i) primitiveData.indices.push_back(indices[i]);
-                    }
-                        break;
+                    } break;
                     default:
                         throw std::runtime_error("Indice type not defined");
                 }
@@ -151,7 +177,7 @@ namespace Engine {
         return mModel;
     }
 
-/*
+    /*
     Mesh AssetsManager::loadModel(const std::string &path) {
         Mesh mesh{};
         tinyobj::attrib_t attrib;
@@ -199,7 +225,7 @@ namespace Engine {
     }
 */
 
-/*
+    /*
     Mesh AssetsManager::loadModel(const std::string &path) {
         Mesh mesh{};
         mesh.vertices = {
@@ -242,4 +268,4 @@ namespace Engine {
         return buffer;
     }
 
-}
+}// namespace Engine

@@ -1,10 +1,10 @@
 #pragma once
 
+#include "../components/Transform.h"
+#include <entt/entity/entity.hpp>
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
-#include <entt/entity/entity.hpp>
-#include "../components/Transform.h"
 
 namespace Engine {
     class NodeData {
@@ -16,4 +16,4 @@ namespace Engine {
         entt::entity parent{entt::null};
         entt::entity self{entt::null};
     };
-}
+}// namespace Engine

@@ -3,8 +3,10 @@
 namespace Engine {
     void PerspectiveCameraSystem::update(const float &delta) {
         auto &transform = registry.get<Transform>(camera);
-        if (input->isKeyPressed(Input::Key::UP))speed += 1 * delta;
-        if (input->isKeyPressed(Input::Key::DOWN))speed -= 1 * delta;
+        if (input->isKeyPressed(Input::Key::UP))
+            speed += 1 * delta;
+        if (input->isKeyPressed(Input::Key::DOWN))
+            speed -= 1 * delta;
 
         const float cameraSpeed = speed * delta;
         glm::vec3 forward = glm::rotate(transform.rotation, glm::vec3{0, 0, -1});
@@ -19,9 +21,9 @@ namespace Engine {
         if (input->isKeyPressed(Input::Key::D))
             transform.location += cameraSpeed * left;
         if (input->isKeyPressed(Input::Key::Q))
-            transform.location.z -= cameraSpeed;
+            transform.location.y -= cameraSpeed;
         if (input->isKeyPressed(Input::Key::E))
-            transform.location.z += cameraSpeed;
+            transform.location.y += cameraSpeed;
 
         input->HideCursor(input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT));
 
@@ -46,25 +48,17 @@ namespace Engine {
         yOffset *= sensitivity;
 
         if ((input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT))) {
+            //    float pitch = glm::pitch(transform.rotation) + yOffset;
+            //    float yaw = glm::yaw(transform.rotation) - xOffset;
+            //    float roll = glm::roll(transform.rotation);
+            //
+            //    transform.rotation = glm::quat(glm::vec3(pitch, yaw, roll));
 
-            float pitch = glm::pitch(transform.rotation);
-            float yaw = glm::yaw(transform.rotation);
-            float roll = glm::roll(transform.rotation);
-
-            roll -= xOffset;
-            pitch += yOffset;
-
-            // make sure that when pitch is out of bounds, screen doesn't get flipped
-            // if (pitch > 89.0f) pitch = 89.0f;
-            // if (pitch < -89.0f) pitch = -89.0f;
-
-            transform.rotation = glm::quat(glm::vec3(pitch, yaw, roll));
+            transform.rotation = glm::rotate(transform.rotation, -xOffset, glm::vec3{0, 1, 0});
+            transform.rotation = glm::rotate(transform.rotation, yOffset, glm::vec3{1, 0, 0});
         }
     }
 
-    PerspectiveCameraSystem::PerspectiveCameraSystem(entt::entity
-                                                     camera, Input *input,
-                                                     entt::registry &registry) : camera{camera},
-                                                                                 input{input},
-                                                                                 System(registry) {}
-}
+    PerspectiveCameraSystem::PerspectiveCameraSystem(entt::entity camera, Input *input, entt::registry &registry)
+        : camera{camera}, input{input}, System(registry) {}
+}// namespace Engine

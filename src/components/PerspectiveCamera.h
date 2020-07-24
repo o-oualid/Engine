@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Camera.h"
 #include "../pch.h"
+#include "Camera.h"
 #include "Transform.h"
 
 namespace Engine {
@@ -16,4 +16,4 @@ namespace Engine {
 
         glm::mat4 projection();
     };
-}
+}// namespace Engine

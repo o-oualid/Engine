@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
 #include "../Vertex.h"
 #include "../components/Material.h"
+#include <vector>
 
 namespace Engine {
     class PrimitiveData {
@@ -11,4 +11,4 @@ namespace Engine {
         std::vector<uint32_t> indices;
         Material material{};
     };
-}
+}// namespace Engine
