@@ -2,6 +2,11 @@
 
 3D game engine built using C++ and Vulkan 
 
+## Requirements
+
+- Cmake 3.13 or newer 
+- Vulkan SDK
+
 ## Build instructions
 
 1. clone the repo ```git clone --recursive https://github.com/o-oualid/Engine.git```
