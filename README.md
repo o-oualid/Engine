@@ -7,14 +7,16 @@
 - Cmake 3.13 or newer 
 - Vulkan SDK
 
-## Build instructions
+## Build Instructions
 
 1. clone the repo ```git clone --recursive https://github.com/o-oualid/Engine.git```
 2. make a build directory ```cd Engine && mkdir build && cd build```
 3. setup cmake with ```cmake ..```
 4. open the project with your IDE
 
-## Opensource projects used
+## Opensource Dependencies
+- [glfw](https://github.com/glfw/glfw)
+- [glm](https://github.com/g-truc/glm)
 - [stb](https://github.com/nothings/stb)
 - [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader)
 - [entt](https://github.com/skypjack/entt)
