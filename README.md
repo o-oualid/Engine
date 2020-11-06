@@ -13,6 +13,7 @@
 2. make a build directory ```cd Engine && mkdir build && cd build```
 3. setup cmake with ```cmake ..```
 4. open the project with your IDE
+5. compile shaders
 
 ## Opensource Dependencies
 - [glfw](https://github.com/glfw/glfw)
