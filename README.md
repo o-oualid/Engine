@@ -10,9 +10,9 @@
 4. open the project with your IDE
 
 ## Opensource projects used
-[stb](https://github.com/nothings/stb)
-[tinyobjloader](https://github.com/tinyobjloader/tinyobjloader)
-[entt](https://github.com/skypjack/entt)
-[tomlplusplus](https://github.com/marzer/tomlplusplus)
-[imgui](https://github.com/ocornut/imgui)
-[tinygltf](https://github.com/syoyo/tinygltf)
+- [stb](https://github.com/nothings/stb)
+- [tinyobjloader](https://github.com/tinyobjloader/tinyobjloader)
+- [entt](https://github.com/skypjack/entt)
+- [tomlplusplus](https://github.com/marzer/tomlplusplus)
+- [imgui](https://github.com/ocornut/imgui)
+- [tinygltf](https://github.com/syoyo/tinygltf)
