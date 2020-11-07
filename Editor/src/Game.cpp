@@ -1,14 +1,15 @@
-#include <logger/TerminalLogger.h>
+#include "Game.h"
 #include "components/Car.h"
 #include "systems/EntitySystem.h"
-#include "Game.h"
+#include <logger/TerminalLogger.h>
 
 using namespace Engine;
 
-Game::Game():Application("Editor"){}
+Game::Game() : Application("Editor") {}
 
 void Game::init() {
-    renderer->addModel("data/models/cars/race.glb");
+    entt::entity sky = renderer->addModel("data/sky.glb");
+    //registry.get<Mesh>(sky).attributes[0].material.useColor=1;
     systemsManager->attachSystem(new EntitySystem(registry));
     editor = new Editor(registry, dynamic_cast<VkRenderer *>(renderer));
     editor->init();

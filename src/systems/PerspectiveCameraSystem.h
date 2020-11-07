@@ -6,7 +6,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 namespace Engine {
-    class PerspectiveCameraSystem final : public System {
+    class PerspectiveCameraSystem final : public System, Input::InputListener {
     private:
         entt::entity camera;
         Input *input;
@@ -22,5 +22,11 @@ namespace Engine {
         void update(const float &delta) override;
 
         ~PerspectiveCameraSystem() final = default;
+
+    private:
+        bool onMouseMoved(float x, float y) override;
+        bool MouseKeyPressed(Input::MouseKey key) override;
+        bool onKeyPressed(Input::Key key) override;
+        bool onKeyReleased(Input::Key key) override;
     };
 }// namespace Engine

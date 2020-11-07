@@ -1037,7 +1037,7 @@ namespace Engine {
     void VkRenderer::updateUniformBuffer(size_t currentImage) {
         auto &cam = registry.get<PerspectiveCamera>(camera);
         UniformBufferObject ubo{};
-        ubo.view = glm::inverse(getGlobalTransform(camera));
+        ubo.view = cam.view();
         ubo.proj = cam.projection();
         ubo.proj[1][1] *= -1;
         void *data;
@@ -1403,8 +1403,10 @@ namespace Engine {
     }
 
     void VkRenderer::loadModel() {
-        for (int i = 0; i < texturesCount; i++)
-            vkTextures.push_back(createTexture("data/textures/viking_room.png"));
+
+        vkTextures.push_back(createTexture("data/textures/StandardCubeMap.png"));
+        vkTextures.push_back(createTexture("data/textures/viking_room.png"));
+        vkTextures.push_back(createTexture("data/textures/brown_mud_leaves_01_diff_2k.png"));
     }
 
     entt::entity VkRenderer::addModel(const std::string &path) {

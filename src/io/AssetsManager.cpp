@@ -136,8 +136,7 @@ namespace Engine {
                         };
 
                     if (hasUV) vertex.uv = {uv[i * 2 + 0], uv[i * 2 + 1]};
-                    else
-                        vertex.uv = {1.0f, 1.0f};
+                    else vertex.uv = {1.0f, 1.0f};
 
                     primitiveData.vertices.push_back(vertex);
                 }

@@ -90,35 +90,41 @@ void Editor::drawDockSpace() {
 
 void Editor::drawHierarchy() {
     ImGui::Begin("Hierarchy");
-    if (ImGui::Button("Add Entity"))
-        selectedEntity = registry.create();
-
-    entt::registry &reg = registry;
-    auto &sel = selectedEntity;
-    registry.each([&reg, &sel](auto entity) {
-        std::string name = "null";
-        if (reg.has<Name>(entity))
-            name = reg.get<Name>(entity).name;
-
-        static bool closable_group = true;
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanFullWidth |
-                                   ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen |
-                                   ImGuiTreeNodeFlags_Bullet;
-        if (entity == sel) flags |= ImGuiTreeNodeFlags_Selected;
-        ImGui::TreeNodeEx((std::to_string((uint32_t) entity)).c_str(), flags, "%s",
-                          (name + ": " + std::to_string((uint32_t) entity)).c_str());
-        if (ImGui::IsItemClicked())
-            sel = entity;
-
-        if (ImGui::BeginPopupContextItem()) {
-            if (ImGui::MenuItem("remove")) reg.destroy(entity);
-            if (ImGui::MenuItem("duplicate"))
-                ;
-
-            ImGui::EndPopup();
-        }
+    if (ImGui::Button("Add Entity")) selectedEntity = registry.create();
+    registry.each([&](auto entity) {
+        if (!registry.has<Relationship>(entity) ||
+            registry.get<Relationship>(entity).parent == entt::null ||
+            registry.get<Relationship>(entity).parent == entity ||
+            !registry.valid(registry.get<Relationship>(entity).parent))
+            drawEntityNode(entity);
     });
     ImGui::End();
+}
+
+void Editor::drawEntityNode(entt::entity entity) {
+    std::string name = "null";
+    if (registry.has<Name>(entity))
+        name = registry.get<Name>(entity).name;
+
+    static bool closable_group = true;
+    ImGuiTreeNodeFlags flags = ((entity == selectedEntity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow;
+
+    bool opened = ImGui::TreeNodeEx((std::to_string((uint32_t) entity)).c_str(), flags, "%s", name.c_str());
+    if (ImGui::IsItemClicked()) selectedEntity = entity;
+
+    if (ImGui::BeginPopupContextItem()) {
+        if (ImGui::MenuItem("Delete")) { registry.destroy(entity); }
+        ImGui::EndPopup();
+    }
+    if (opened) {
+        auto view = registry.view<Relationship>();
+        for (auto child : view) {
+            auto &parent = view.get<Relationship>(child);
+            if (parent.parent == entity && parent.parent != child)
+                drawEntityNode(child);
+        }
+        ImGui::TreePop();
+    }
 }
 
 void Editor::drawProperties() {
@@ -150,9 +156,11 @@ void Editor::drawProperties() {
 
             auto &mesh = registry.get<Mesh>(selectedEntity);
             if (ImGui::TreeNode("Colors")) {
-                for (int i = 0; i < mesh.attributes.size(); i++)
+                for (int i = 0; i < mesh.attributes.size(); i++) {
                     ImGui::ColorEdit4(("Color " + std::to_string(i)).c_str(),
                                       &mesh.attributes[i].material.color.x);
+                    ImGui::InputScalar("Use Color ",ImGuiDataType_U32, &mesh.attributes[i].material.useColor);
+                }
                 ImGui::TreePop();
                 ImGui::Separator();
             }

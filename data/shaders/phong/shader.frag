@@ -9,22 +9,26 @@ layout(location = 1) in vec2 fragTexCoord;
 layout(location = 2) in vec4 pos;
 layout(location = 3) in vec3 inNormal;
 
-struct Material{
+flat struct Material{
     vec4 color;
+    uint useColor;
 };
 
-layout(location = 4)  in Material material;
+layout(location = 4)  in flat Material material;
 
 layout(location = 0) out vec4 outColor;
 
 
 void main() {
-    vec3 normal=normalize(inNormal);
-    vec3 light=normalize(vec3(0.0f,-1.0f,2.0f));
-    vec3 lightColor=vec3(1.0f,1.0f,0.9f);
-    vec3 color=vec3(material.color);
-    float cosTheta = clamp( dot(normal,light), 0.05,1 );
+    if (material.useColor==0){
+        vec3 color=vec3(material.color);
+        vec3 normal=normalize(inNormal);
+        vec3 light=normalize(vec3(0.0f, -1.0f, 2.0f));
+        vec3 lightColor=vec3(1.0f, 1.0f, 0.9f);
+        float cosTheta = clamp(dot(normal, light), 0.05, 1);
 
+        outColor =vec4(lightColor*color*cosTheta, 1.0f);
+    }
+    else outColor = texture(sampler2D(textures[material.useColor-1], texSampler), fragTexCoord);
 
-    outColor =vec4(lightColor*color*cosTheta,1.0f);
 }

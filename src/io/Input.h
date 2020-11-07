@@ -5,8 +5,6 @@
 namespace Engine {
     class Input {
 
-        GLFWwindow *window;
-
 
     public:
         struct Point {
@@ -156,6 +154,19 @@ namespace Engine {
             BUTTON_MIDDLE = 2,
         };
 
+        enum class keyAction {
+            PRESS = 0,
+            RELEASE = 1,
+            REPEAT = 2
+        };
+
+        struct InputListener {
+            InputListener *nextListener = nullptr;
+            virtual bool onMouseMoved(float x, float y) = 0;
+            virtual bool MouseKeyPressed(MouseKey key) = 0;
+            virtual bool onKeyPressed(Key key) = 0;
+            virtual bool onKeyReleased(Key key) = 0;
+        };
         bool isKeyPressed(Key key);
 
         Input();
@@ -167,5 +178,19 @@ namespace Engine {
         void HideCursor(bool flag);
 
         bool isMouseKeyPressed(MouseKey key);
+
+        void addMouseListener(InputListener *listener);
+
+        void removeMouseListener(InputListener *listener);
+
+        void mouseCallBack(float x, float y) const;
+        void keyCallBack(Key key, keyAction action) const;
+
+
+    public:
+        InputListener *inputListener = nullptr;
+        GLFWwindow *window;
     };
+
+
 }// namespace Engine

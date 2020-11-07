@@ -1,10 +1,10 @@
 #pragma once
 
-#include <ui/Widget.h>
-#include <string>
-#include <renderer/vulkan/VkRenderer.h>
 #include "entt/entity/registry.hpp"
 #include "logger/EditorLogger.h"
+#include <renderer/vulkan/VkRenderer.h>
+#include <string>
+#include <ui/Widget.h>
 
 class Editor : public Engine::Widget {
     entt::registry &registry;
@@ -15,6 +15,7 @@ class Editor : public Engine::Widget {
     std::string selectedFile{};
     std::string currentFile{};
     EditorLogger logger = EditorLogger{};
+
 public:
     Editor(entt::registry &registry, Engine::VkRenderer *renderer);
 
@@ -25,10 +26,11 @@ public:
     ~Editor();
 
 private:
-
     void drawDockSpace();
 
     void drawHierarchy();
+
+    void drawEntityNode(entt::entity entity);
 
     void drawProperties();
 

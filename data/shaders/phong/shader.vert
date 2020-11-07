@@ -6,8 +6,9 @@ layout(binding = 0) uniform UniformBufferObject {
     mat4 proj;
 } ubo;
 
-struct Material{
+flat struct Material{
     vec4 color;
+    uint useColor;
 };
 
 layout(std430, push_constant) uniform PushConstants {

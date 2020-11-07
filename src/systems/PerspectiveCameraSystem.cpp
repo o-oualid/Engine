@@ -1,40 +1,49 @@
 #include "PerspectiveCameraSystem.h"
-
 namespace Engine {
     void PerspectiveCameraSystem::update(const float &delta) {
-        auto &transform = registry.get<Transform>(camera);
+        auto &perspectiveCamera = registry.get<PerspectiveCamera>(camera);
         if (input->isKeyPressed(Input::Key::UP))
             speed += 1 * delta;
         if (input->isKeyPressed(Input::Key::DOWN))
             speed -= 1 * delta;
 
         const float cameraSpeed = speed * delta;
-        glm::vec3 forward = glm::rotate(transform.rotation, glm::vec3{0, 0, -1});
-        glm::vec3 left = glm::rotate(transform.rotation, glm::vec3{1, 0, 0});
 
         if (input->isKeyPressed(Input::Key::W))
-            transform.location += cameraSpeed * forward;
+            perspectiveCamera.pos += cameraSpeed * perspectiveCamera.front;
         if (input->isKeyPressed(Input::Key::S))
-            transform.location -= cameraSpeed * forward;
+            perspectiveCamera.pos -= cameraSpeed * perspectiveCamera.front;
         if (input->isKeyPressed(Input::Key::A))
-            transform.location -= cameraSpeed * left;
+            perspectiveCamera.pos -= cameraSpeed * glm::normalize(glm::cross(perspectiveCamera.front, perspectiveCamera.up));
         if (input->isKeyPressed(Input::Key::D))
-            transform.location += cameraSpeed * left;
+            perspectiveCamera.pos += cameraSpeed * glm::normalize(glm::cross(perspectiveCamera.front, perspectiveCamera.up));
+
         if (input->isKeyPressed(Input::Key::Q))
-            transform.location.y -= cameraSpeed;
+            perspectiveCamera.pos.y -= cameraSpeed;
         if (input->isKeyPressed(Input::Key::E))
-            transform.location.y += cameraSpeed;
+            perspectiveCamera.pos.y += cameraSpeed;
+    }
 
+    PerspectiveCameraSystem::PerspectiveCameraSystem(entt::entity camera, Input *input, entt::registry &registry)
+        : camera{camera}, input{input}, System(registry) {
+        input->addMouseListener(this);
+    }
+    bool PerspectiveCameraSystem::onMouseMoved(float x, float y) {
+        auto &perspectiveCamera = registry.get<PerspectiveCamera>(camera);
         input->HideCursor(input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT));
+        float xPos = x;
+        float yPos = y;
 
-        transform.dirty = true;
+        static float yaw = -90.0f;
+        static float pitch = 0.0f;
 
-        auto mousePos = input->getMousePos();
-        auto xPos = static_cast<float>(mousePos.x);
-        auto yPos = static_cast<float>(mousePos.y);
         if (firstMouse) {
             lastX = xPos;
             lastY = yPos;
+
+            glm::vec3 direction;
+            direction.x = cos(glm::radians(yaw));
+            direction.z = sin(glm::radians(yaw));
             firstMouse = false;
         }
 
@@ -43,22 +52,31 @@ namespace Engine {
         lastX = xPos;
         lastY = yPos;
 
-        float sensitivity = 0.01f;
+        float sensitivity = 0.1f;
         xOffset *= sensitivity;
         yOffset *= sensitivity;
 
-        if ((input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT))) {
-            //    float pitch = glm::pitch(transform.rotation) + yOffset;
-            //    float yaw = glm::yaw(transform.rotation) - xOffset;
-            //    float roll = glm::roll(transform.rotation);
-            //
-            //    transform.rotation = glm::quat(glm::vec3(pitch, yaw, roll));
+        if (input->isMouseKeyPressed(Input::MouseKey::BUTTON_RIGHT)) {
 
-            transform.rotation = glm::rotate(transform.rotation, -xOffset, glm::vec3{0, 1, 0});
-            transform.rotation = glm::rotate(transform.rotation, yOffset, glm::vec3{1, 0, 0});
+
+            yaw += xOffset;
+            pitch += yOffset;
+
+            if (pitch > 89.0f)
+                pitch = 89.0f;
+            if (pitch < -89.0f)
+                pitch = -89.0f;
+
+            glm::vec3 direction;
+            direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+            direction.y = sin(glm::radians(pitch));
+            direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+            perspectiveCamera.front = glm::normalize(direction);
         }
+        return false;
     }
+    bool PerspectiveCameraSystem::MouseKeyPressed(Input::MouseKey key) { return false; }
+    bool PerspectiveCameraSystem::onKeyPressed(Input::Key key) { return false; }
+    bool PerspectiveCameraSystem::onKeyReleased(Input::Key key) { return false; }
 
-    PerspectiveCameraSystem::PerspectiveCameraSystem(entt::entity camera, Input *input, entt::registry &registry)
-        : camera{camera}, input{input}, System(registry) {}
 }// namespace Engine

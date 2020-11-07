@@ -7,7 +7,6 @@ namespace Engine {
     Application::Application(std::string name)
         : name{name} {
         Log::logger = &logger;
-        registry.create();
         entt::entity camera = registry.create();
         registry.emplace<PerspectiveCamera>(camera);
         Transform cameraTransform{};

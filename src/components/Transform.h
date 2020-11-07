@@ -17,6 +17,6 @@ namespace Engine {
         glm::vec3 scale = {1, 1, 1};
 
         glm::mat4 getTransformMatrix();
-        glm::mat4 getGlobalTransform(entt::registry &registry);
+        //glm::mat4 getGlobalTransform(entt::registry &registry);
     };
 }// namespace Engine

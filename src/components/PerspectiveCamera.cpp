@@ -2,8 +2,7 @@
 
 namespace Engine {
     glm::mat4 PerspectiveCamera::view() {
-        throw std::out_of_range("function not implemented");
-        return glm::mat4{};
+        return glm::lookAt(pos, pos+front, up);
     }
 
     glm::mat4 PerspectiveCamera::projection() {
